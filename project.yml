@@ -14,6 +14,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.m3sb.demoipa
         INFOPLIST_FILE: HelloIPA/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Hello IPA
+        INFOPLIST_KEY_M3SB_API_BASE_URL: https://api.m3sbapi.shop
+        INFOPLIST_KEY_M3SB_HMAC_SECRET: $(M3SB_HMAC_SECRET)
         INFOPLIST_KEY_LSRequiresIPhoneOS: YES
         SWIFT_VERSION: 5.0
         TARGETED_DEVICE_FAMILY: "1,2"
