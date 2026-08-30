@@ -189,7 +189,7 @@ private final class VerificationViewController: UIViewController {
         content.addArrangedSubview(badge)
         controller.view.addSubview(content)
         NSLayoutConstraint.activate([content.centerXAnchor.constraint(equalTo: controller.view.centerXAnchor), content.centerYAnchor.constraint(equalTo: controller.view.centerYAnchor)])
-        window?.rootViewController = controller
+        (UIApplication.shared.delegate as? AppDelegate)?.window?.rootViewController = controller
     }
 
     private func persistentDeviceID() -> String {
