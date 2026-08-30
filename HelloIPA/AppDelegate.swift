@@ -93,7 +93,10 @@ private enum M3BSCrypto {
         let fields = ["valid", "status", "license", "device_hash", "expires_at", "devices_left", "allow_inject", "ts"]
         let payload = fields.map { field -> String in
             guard let value = json[field], !(value is NSNull) else { return "\(field)=" }
-            if let bool = value as? Bool { return "\(field)=\(bool ? "true" : "false")" }
+            if CFGetTypeID(value as CFTypeRef) == CFBooleanGetTypeID() {
+                return "\(field)=\(((value as? Bool) ?? false) ? "true" : "false")"
+            }
+            if let number = value as? NSNumber { return "\(field)=\(number.stringValue)" }
             return "\(field)=\(value)"
         }.joined(separator: "&")
         return hmac(payload, secret: M3SBConfig.secret) == signature
