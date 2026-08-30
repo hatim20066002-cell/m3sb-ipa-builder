@@ -6,6 +6,8 @@
 	<string>Hello IPA</string>
 	<key>CFBundleIdentifier</key>
 	<string>app.passionfruit5910.lavender4318</string>
+	<key>CFBundleExecutable</key>
+	<string>HelloIPA</string>
 	<key>CFBundleName</key>
 	<string>HelloIPA</string>
 	<key>CFBundlePackageType</key>
