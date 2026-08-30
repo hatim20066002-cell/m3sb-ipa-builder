@@ -1,0 +1,65 @@
+name: Build unsigned IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      bundle_id:
+        description: Bundle identifier
+        required: true
+        default: com.m3sb.demoipa
+      project_name:
+        description: IPA name
+        required: true
+        default: hello-ipa
+
+permissions:
+  contents: read
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build unsigned archive
+        run: |
+          set -euo pipefail
+          xcodebuild archive \
+            -project HelloIPA.xcodeproj \
+            -scheme HelloIPA \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath "$RUNNER_TEMP/HelloIPA.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package IPA
+        env:
+          IPA_NAME: ${{ inputs.project_name }}
+        run: |
+          set -euo pipefail
+          APP_PATH="$RUNNER_TEMP/HelloIPA.xcarchive/Products/Applications/HelloIPA.app"
+          test -d "$APP_PATH"
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
+          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/Payload" "$RUNNER_TEMP/${IPA_NAME}.ipa"
+          test -s "$RUNNER_TEMP/${IPA_NAME}.ipa"
+
+      - name: Upload unsigned IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.project_name }}-unsigned-ipa
+          path: ${{ runner.temp }}/${{ inputs.project_name }}.ipa
+          retention-days: 1
