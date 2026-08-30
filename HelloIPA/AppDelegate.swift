@@ -104,6 +104,7 @@ private final class GateViewController: UIViewController {
     private let scrollView = UIScrollView()
     private let stack = UIStackView()
     private let spinner = UIActivityIndicatorView(style: .medium)
+    private let successIcon = UIImageView()
     private let titleLabel = UILabel()
     private let detailLabel = UILabel()
     private let keyField = UITextField()
@@ -142,12 +143,21 @@ private final class GateViewController: UIViewController {
             stack.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor, constant: -60)
         ])
         spinner.color = .lightGray
+        successIcon.image = UIImage(systemName: "app.fill")
+        successIcon.tintColor = .systemBlue
+        successIcon.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.18)
+        successIcon.layer.cornerRadius = 28
+        successIcon.clipsToBounds = true
+        successIcon.contentMode = .center
+        successIcon.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 36, weight: .semibold)
+        successIcon.widthAnchor.constraint(equalToConstant: 86).isActive = true
+        successIcon.heightAnchor.constraint(equalToConstant: 86).isActive = true
         titleLabel.textColor = .white; titleLabel.font = .systemFont(ofSize: 23, weight: .semibold); titleLabel.textAlignment = .center
         detailLabel.textColor = .lightGray; detailLabel.font = .systemFont(ofSize: 15); detailLabel.textAlignment = .center; detailLabel.numberOfLines = 0
         keyField.placeholder = "License key"; keyField.textColor = .white; keyField.tintColor = .systemBlue; keyField.backgroundColor = UIColor(white: 0.12, alpha: 1); keyField.layer.cornerRadius = 16; keyField.layer.borderWidth = 1; keyField.layer.borderColor = UIColor.white.withAlphaComponent(0.10).cgColor; keyField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 1)); keyField.leftViewMode = .always; keyField.autocapitalizationType = .none; keyField.autocorrectionType = .no; keyField.returnKeyType = .done; keyField.addTarget(self, action: #selector(keySubmitted), for: .editingDidEndOnExit); keyField.heightAnchor.constraint(equalToConstant: 54).isActive = true; keyField.widthAnchor.constraint(equalToConstant: 320).isActive = true
         actionButton.setTitleColor(.white, for: .normal); actionButton.backgroundColor = .systemBlue; actionButton.layer.cornerRadius = 17; actionButton.layer.shadowColor = UIColor.systemBlue.cgColor; actionButton.layer.shadowOpacity = 0.35; actionButton.layer.shadowRadius = 14; actionButton.layer.shadowOffset = CGSize(width: 0, height: 7); actionButton.heightAnchor.constraint(equalToConstant: 54).isActive = true; actionButton.widthAnchor.constraint(equalToConstant: 230).isActive = true; actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
         secondaryButton.setTitleColor(.systemBlue, for: .normal); secondaryButton.addTarget(self, action: #selector(contactOwner), for: .touchUpInside)
-        stack.addArrangedSubview(spinner); stack.addArrangedSubview(titleLabel); stack.addArrangedSubview(detailLabel); stack.addArrangedSubview(keyField); stack.addArrangedSubview(actionButton); stack.addArrangedSubview(secondaryButton)
+        stack.addArrangedSubview(spinner); stack.addArrangedSubview(successIcon); stack.addArrangedSubview(titleLabel); stack.addArrangedSubview(detailLabel); stack.addArrangedSubview(keyField); stack.addArrangedSubview(actionButton); stack.addArrangedSubview(secondaryButton)
     }
 
     @objc private func keySubmitted() { actionTapped() }
@@ -174,12 +184,12 @@ private final class GateViewController: UIViewController {
     }
 
     private func start() {
-        titleLabel.text = "M3SB API"; detailLabel.text = "Version: \(M3SBConfig.apiVersion)"; keyField.isHidden = true; actionButton.isHidden = true; secondaryButton.isHidden = true; spinner.startAnimating()
+        successIcon.isHidden = true; titleLabel.text = "M3SB API"; detailLabel.text = "Version: \(M3SBConfig.apiVersion)"; keyField.isHidden = true; actionButton.isHidden = true; secondaryButton.isHidden = true; spinner.startAnimating()
         if let saved = KeychainStore.get("license-key"), !saved.isEmpty { licenseKey = saved; showLoading("APIServer"); verify(saved, save: false) } else { showKeyRequired() }
     }
-    private func showLoading(_ text: String) { animateState { self.spinner.startAnimating(); self.titleLabel.text = text; self.titleLabel.textColor = .white; self.titleLabel.font = .systemFont(ofSize: 23, weight: .semibold); self.detailLabel.text = "Version: \(M3SBConfig.apiVersion)"; self.keyField.isHidden = true; self.actionButton.isHidden = true; self.secondaryButton.isHidden = true } }
-    private func showKeyRequired() { animateState { self.spinner.stopAnimating(); self.titleLabel.text = "Key required"; self.titleLabel.textColor = .white; self.titleLabel.font = .systemFont(ofSize: 23, weight: .semibold); self.detailLabel.text = "Enter your M3SB license key"; self.keyField.isHidden = false; self.actionButton.isHidden = false; self.actionButton.setTitle("Verify", for: .normal); self.secondaryButton.isHidden = false; self.secondaryButton.setTitle("Contact Owner…", for: .normal) } }
-    private func showError(_ status: String, message: String?) { animateState { self.spinner.stopAnimating(); self.keyField.isHidden = false; self.actionButton.isHidden = false; self.actionButton.setTitle("Try again", for: .normal); self.secondaryButton.isHidden = false; self.secondaryButton.setTitle("Contact Owner…", for: .normal); self.titleLabel.text = status == "package_off" ? "Package off" : status == "key_not_found" ? "Key required" : "Verification failed"; self.titleLabel.textColor = .systemRed; self.titleLabel.font = .systemFont(ofSize: 23, weight: .semibold); self.detailLabel.text = message ?? "The server rejected this request." } }
+    private func showLoading(_ text: String) { animateState { self.successIcon.isHidden = true; self.spinner.startAnimating(); self.titleLabel.text = text; self.titleLabel.textColor = .white; self.titleLabel.font = .systemFont(ofSize: 23, weight: .semibold); self.detailLabel.text = "Version: \(M3SBConfig.apiVersion)"; self.keyField.isHidden = true; self.actionButton.isHidden = true; self.secondaryButton.isHidden = true } }
+    private func showKeyRequired() { animateState { self.successIcon.isHidden = true; self.spinner.stopAnimating(); self.titleLabel.text = "Key required"; self.titleLabel.textColor = .white; self.titleLabel.font = .systemFont(ofSize: 23, weight: .semibold); self.detailLabel.text = "Enter your M3SB license key"; self.keyField.isHidden = false; self.actionButton.isHidden = false; self.actionButton.setTitle("Verify", for: .normal); self.secondaryButton.isHidden = false; self.secondaryButton.setTitle("Contact Owner…", for: .normal) } }
+    private func showError(_ status: String, message: String?) { animateState { self.successIcon.isHidden = true; self.spinner.stopAnimating(); self.keyField.isHidden = false; self.actionButton.isHidden = false; self.actionButton.setTitle("Try again", for: .normal); self.secondaryButton.isHidden = false; self.secondaryButton.setTitle("Contact Owner…", for: .normal); self.titleLabel.text = status == "package_off" ? "Package off" : status == "key_not_found" ? "Key required" : "Verification failed"; self.titleLabel.textColor = .systemRed; self.titleLabel.font = .systemFont(ofSize: 23, weight: .semibold); self.detailLabel.text = message ?? "The server rejected this request." } }
 
     @objc private func actionTapped() { let key = keyField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""; guard !key.isEmpty else { detailLabel.text = "Enter your M3SB license key"; return }; licenseKey = key; showLoading("Package initializing"); verify(key, save: true) }
     @objc private func contactOwner() { guard let url = URL(string: "https://t.me/\(M3SBConfig.owner)") else { return }; UIApplication.shared.open(url) }
@@ -192,7 +202,22 @@ private final class GateViewController: UIViewController {
     }
 
     private func parse(_ json: [String: Any]) -> LicenseReply { LicenseReply(valid: json["valid"] as? Bool ?? false, status: json["status"] as? String ?? "unknown", package: json["package"] as? String ?? M3SBConfig.packageName, license: json["license"] as? String ?? "", expires: json["expires_at"] as? String, deviceHash: json["device_hash"] as? String, devicesLeft: json["devices_left"] as? Int, message: json["message"] as? String, telegram: json["telegram_username"] as? String, sigV2: json["sig_v2"] as? String, raw: json) }
-    private func showSuccess(_ reply: LicenseReply) { spinner.stopAnimating(); keyField.isHidden = true; actionButton.isHidden = true; secondaryButton.isHidden = false; secondaryButton.setTitle("Tap to close", for: .normal); titleLabel.text = "✓"; titleLabel.textColor = .systemGreen; titleLabel.font = .systemFont(ofSize: 58, weight: .regular); detailLabel.text = "\(reply.package)\nExpiry date: \(reply.expires ?? "Unlimited")\nDevice: \(UIDevice.current.model) | System version: \(UIDevice.current.systemVersion)\nAPIServer: \(M3SBConfig.apiVersion)"; startHeartbeat() }
+    private func showSuccess(_ reply: LicenseReply) {
+        animateState {
+            self.spinner.stopAnimating()
+            self.successIcon.isHidden = false
+            self.successIcon.tintColor = .systemGreen
+            self.keyField.isHidden = true
+            self.actionButton.isHidden = true
+            self.secondaryButton.isHidden = false
+            self.secondaryButton.setTitle("Tap to close", for: .normal)
+            self.titleLabel.text = "✓"
+            self.titleLabel.textColor = .systemGreen
+            self.titleLabel.font = .systemFont(ofSize: 58, weight: .regular)
+            self.detailLabel.text = "\(reply.package)\nExpiry date: \(reply.expires ?? "Unlimited")\nDevice: \(UIDevice.current.model) | System version: \(UIDevice.current.systemVersion)\nAPIServer: \(M3SBConfig.apiVersion)"
+            self.startHeartbeat()
+        }
+    }
     private func startHeartbeat() { heartbeat?.invalidate(); heartbeat = Timer.scheduledTimer(withTimeInterval: M3SBConfig.heartbeatSeconds, repeats: true) { [weak self] _ in self?.check() } }
     private func check() { guard !licenseKey.isEmpty, let url = URL(string: M3SBConfig.baseURL + "/api/sdk/check") else { return }; let body: [String: Any] = ["token": M3SBConfig.token, "key": licenseKey, "device_id": deviceID]; var request = URLRequest(url: url); request.httpMethod = "POST"; request.setValue("application/json", forHTTPHeaderField: "Content-Type"); M3BSCrypto.checkHeaders(body: body, key: licenseKey, device: deviceID).forEach { request.setValue($0.value, forHTTPHeaderField: $0.key) }; request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [.sortedKeys, .withoutEscapingSlashes]); URLSession.shared.dataTask(with: request) { [weak self] data, _, _ in guard let data, let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any], json["valid"] as? Bool == true else { DispatchQueue.main.async { self?.showError("Verification required", message: "The license is no longer valid."); KeychainStore.remove("license-key") }; return }; if !M3BSCrypto.responseIsTrusted(json) { DispatchQueue.main.async { self?.showError("Invalid server response", message: "The response signature could not be verified.") } } }.resume() }
 }
