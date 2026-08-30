@@ -6,7 +6,7 @@ on:
       bundle_id:
         description: Bundle identifier
         required: true
-        default: com.m3sb.demoipa
+        default: app.passionfruit5910.lavender4318
       project_name:
         description: IPA name
         required: true

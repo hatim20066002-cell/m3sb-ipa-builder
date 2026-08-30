@@ -11,7 +11,7 @@ targets:
       - HelloIPA
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.m3sb.demoipa
+        PRODUCT_BUNDLE_IDENTIFIER: app.passionfruit5910.lavender4318
         INFOPLIST_FILE: HelloIPA/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Hello IPA
         INFOPLIST_KEY_M3SB_API_BASE_URL: https://api.m3sbapi.shop
