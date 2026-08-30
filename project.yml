@@ -12,6 +12,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.m3sb.demoipa
+        INFOPLIST_FILE: HelloIPA/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: Hello IPA
         INFOPLIST_KEY_LSRequiresIPhoneOS: YES
         SWIFT_VERSION: 5.0
