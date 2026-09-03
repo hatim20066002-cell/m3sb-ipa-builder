@@ -12,14 +12,6 @@
 	<string>HelloIPA</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>M3SB_API_BASE_URL</key>
-	<string>https://api.m3sbapi.shop</string>
-	<key>M3SB_PACKAGE_NAME</key>
-	<string>M3SB</string>
-	<key>M3SB_PACKAGE_TOKEN</key>
-	<string>4cf80f13169f6273cbb2d48b4404ba21503af1d9c91d3b71e7a2f2494e3b</string>
-	<key>M3SB_HMAC_SECRET</key>
-	<string>60f7ad90515427030e39b30e656cb95781b44304e728625e6f54ef077b04dd2e</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
