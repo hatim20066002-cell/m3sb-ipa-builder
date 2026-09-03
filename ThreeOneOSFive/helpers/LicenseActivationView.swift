@@ -19,11 +19,7 @@ struct LicenseActivationView: View {
                         VStack(spacing: 0) {
                             Spacer(minLength: 42)
 
-                            AppLogo(size: 78)
-                                .shadow(color: AppTheme.accent.opacity(0.42), radius: 20)
-                                .padding(.bottom, 18)
-
-                            Text("xTop1")
+                            Text("xTop1 External")
                                 .font(.system(size: 30, weight: .black, design: .rounded))
                                 .tracking(1.4)
                                 .foregroundStyle(.white)
@@ -33,7 +29,7 @@ struct LicenseActivationView: View {
                                 .foregroundStyle(.white.opacity(0.55))
                                 .padding(.top, 5)
 
-                            Text("Package: xTop1")
+                            Text("Package: xTop1 External")
                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                                 .foregroundStyle(AppTheme.secondaryAccent.opacity(0.9))
                                 .padding(.top, 8)

@@ -56,11 +56,8 @@ struct ContentView: View {
 
     private var brandHeader: some View {
         HStack(spacing: 14) {
-            AppLogo(size: 48)
-                .shadow(color: AppTheme.accent.opacity(0.35), radius: 12)
-
             VStack(alignment: .leading, spacing: 3) {
-                Text("xTop1")
+                Text("xTop1 External")
                     .font(.system(size: 25, weight: .black, design: .rounded))
                     .tracking(3)
                     .foregroundStyle(.white)
