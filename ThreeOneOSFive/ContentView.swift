@@ -148,7 +148,7 @@ struct ContentView: View {
             panelTitle("ENTRAR NO JOGO", icon: "arrow.up.forward.app.fill")
             HStack(spacing: 12) {
                 launchButton(title: "FF NORMAL", subtitle: "Free Fire Normal", color: AppTheme.accent, scheme: "freefireth")
-                launchButton(title: "FF MAX", subtitle: "Free Fire MAX", color: AppTheme.secondaryAccent, scheme: "freefiremax")
+                lockedLaunchButton(title: "FF MAX", subtitle: "Locked • Coming Soon", color: AppTheme.secondaryAccent)
             }
             Button {
                 showCleaner = true
@@ -184,6 +184,26 @@ struct ContentView: View {
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(color.opacity(0.38), lineWidth: 1))
         }
         .buttonStyle(.plain)
+    }
+
+    private func lockedLaunchButton(title: String, subtitle: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(color.opacity(0.72))
+            Text(title)
+                .font(.system(size: 13, weight: .black, design: .rounded))
+                .foregroundStyle(.white.opacity(0.72))
+            Text(subtitle)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(color.opacity(0.72))
+        }
+        .frame(maxWidth: .infinity, minHeight: 82, alignment: .leading)
+        .padding(.horizontal, 14)
+        .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(color.opacity(0.24), lineWidth: 1))
+        .opacity(0.72)
+        .accessibilityLabel("FF MAX locked, coming soon")
     }
 
     private var footerStatus: some View {
