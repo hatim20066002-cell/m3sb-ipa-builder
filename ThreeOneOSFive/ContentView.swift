@@ -6,6 +6,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var appState: AppState
     @State private var showSettings = false
+    @State private var showCleaner = false
     @StateObject private var patchStore = PatchProjectStore()
     @State private var patchOperationBusy = false
     @State private var patchMessage = "READY — SELECT A PATCH"
@@ -37,6 +38,9 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
         .sheet(isPresented: $showSettings) {
             SettingsView()
+        }
+        .sheet(isPresented: $showCleaner) {
+            CleanerView()
         }
         .onAppear { syncPatchStates() }
         .onChange(of: scenePhase) { phase in
@@ -137,6 +141,18 @@ struct ContentView: View {
                 launchButton(title: "FF NORMAL", subtitle: "Free Fire Normal", color: AppTheme.accent, scheme: "freefireth")
                 launchButton(title: "FF MAX", subtitle: "Free Fire MAX", color: AppTheme.secondaryAccent, scheme: "freefiremax")
             }
+            Button {
+                showCleaner = true
+            } label: {
+                Label("Clean Cache & Temp", systemImage: "trash.slash.fill")
+                    .font(.system(size: 13, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, minHeight: 52)
+                    .background(Color.black.opacity(0.40), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.orange.opacity(0.52), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Open cache and temporary files cleaner")
         }
     }
 
