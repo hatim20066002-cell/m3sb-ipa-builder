@@ -75,7 +75,10 @@
 		3105P205 /* HSSLA.3105 in Resources */ = {isa = PBXBuildFile; fileRef = 3105P105; };
 		3105P206 /* HSPESCOSEMANTENA.3105 in Resources */ = {isa = PBXBuildFile; fileRef = 3105P106; };
 		3105P209 /* HSPEITOFFNORMALHYPER.3105 in Resources */ = {isa = PBXBuildFile; fileRef = 3105P109; };
-		3105P208 /* HYPERBALAMAGICA.3105 in Resources */ = {isa = PBXBuildFile; fileRef = 3105P108; };
+		3105P208 /* HYPERBALAMAGICA.3105 */ = {isa = PBXBuildFile; fileRef = 3105P108; };
+		3105P210 /* AIM BODY.3105 */ = {isa = PBXBuildFile; fileRef = 3105P110; };
+		3105P211 /* AIM CHEST.3105 */ = {isa = PBXBuildFile; fileRef = 3105P111; };
+		3105P212 /* AIM MAGIC.3105 */ = {isa = PBXBuildFile; fileRef = 3105P112; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -167,6 +170,9 @@
 		3105P106 /* HSPESCOSEMANTENA.3105 */ = {isa = PBXFileReference; lastKnownFileType = file; path = ThreeOneOSFive/Patches/HSPESCOSEMANTENA.3105; sourceTree = "<group>"; };
 		3105P109 /* HSPEITOFFNORMALHYPER.3105 */ = {isa = PBXFileReference; lastKnownFileType = file; path = ThreeOneOSFive/Patches/HSPEITOFFNORMALHYPER.3105; sourceTree = "<group>"; };
 		3105P108 /* HYPERBALAMAGICA.3105 */ = {isa = PBXFileReference; lastKnownFileType = file; path = ThreeOneOSFive/Patches/HYPERBALAMAGICA.3105; sourceTree = "<group>"; };
+		3105P110 /* AIM BODY.3105 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ThreeOneOSFive/Patches/AIM BODY.3105"; sourceTree = "<group>"; };
+		3105P111 /* AIM CHEST.3105 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ThreeOneOSFive/Patches/AIM CHEST.3105"; sourceTree = "<group>"; };
+		3105P112 /* AIM MAGIC.3105 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ThreeOneOSFive/Patches/AIM MAGIC.3105"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -376,6 +382,9 @@
 				3105P206,
 					3105P209,
 					3105P208,
+					3105P210,
+					3105P211,
+					3105P212,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

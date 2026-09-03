@@ -16,6 +16,9 @@ struct ContentView: View {
     @State private var hspEnabled = false
     @State private var hspeitoffEnabled = false
     @State private var hyperBalamagicaEnabled = false
+    @State private var aimBodyPackageEnabled = false
+    @State private var aimChestPackageEnabled = false
+    @State private var aimMagicPackageEnabled = false
 
     var body: some View {
         ZStack {
@@ -112,6 +115,9 @@ struct ContentView: View {
                 patchCard(name: "Magic Bullet", target: "FREE FIRE • MAX", package: "HSPESCOSEMANTENA.3105", color: AppTheme.accent, state: $hspEnabled)
                 patchCard(name: "Antenna", target: "FREE FIRE • NORMAL", package: "HSPEITOFFNORMALHYPER.3105", color: .teal, state: $hspeitoffEnabled)
                 patchCard(name: "144 FPS", target: "FREE FIRE • NORMAL", package: "HYPERBALAMAGICA.3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
+                patchCard(name: "Aim Body", target: "FREE FIRE • NORMAL", package: "AIM BODY.3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
+                patchCard(name: "Aim Chest", target: "FREE FIRE • NORMAL", package: "AIM CHEST.3105", color: .orange, state: $aimChestPackageEnabled)
+                patchCard(name: "Magic Bullet", target: "FREE FIRE • MAX", package: "AIM MAGIC.3105", color: AppTheme.secondaryAccent, state: $aimMagicPackageEnabled)
             }
 
             HStack(spacing: 8) {
@@ -219,6 +225,9 @@ struct ContentView: View {
         hspEnabled = isPatchActive("HSPESCOSEMANTENA.3105")
         hspeitoffEnabled = isPatchActive("HSPEITOFFNORMALHYPER.3105")
         hyperBalamagicaEnabled = isPatchActive("HYPERBALAMAGICA.3105")
+        aimBodyPackageEnabled = isPatchActive("AIM BODY.3105")
+        aimChestPackageEnabled = isPatchActive("AIM CHEST.3105")
+        aimMagicPackageEnabled = isPatchActive("AIM MAGIC.3105")
     }
 
     private func isPatchActive(_ packageFilename: String) -> Bool {
@@ -240,6 +249,9 @@ struct ContentView: View {
         case "HSPESCOSEMANTENA.3105": hspEnabled = enabled
         case "HSPEITOFFNORMALHYPER.3105": hspeitoffEnabled = enabled
         case "HYPERBALAMAGICA.3105": hyperBalamagicaEnabled = enabled
+        case "AIM BODY.3105": aimBodyPackageEnabled = enabled
+        case "AIM CHEST.3105": aimChestPackageEnabled = enabled
+        case "AIM MAGIC.3105": aimMagicPackageEnabled = enabled
         default: break
         }
     }
