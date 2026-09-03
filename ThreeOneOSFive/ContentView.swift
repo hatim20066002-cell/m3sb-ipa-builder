@@ -111,7 +111,7 @@ struct ContentView: View {
             }
 
             HStack(spacing: 8) {
-                Circle().fill(patchMessage.hasPrefix("SUCCESS") ? .green : AppTheme.accent).frame(width: 7, height: 7)
+                Circle().fill(patchMessage.localizedCaseInsensitiveContains("successful") ? .green : AppTheme.accent).frame(width: 7, height: 7)
                 Text(patchOperationBusy ? "PROCESSING PATCH…" : patchMessage)
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.72))
@@ -277,11 +277,11 @@ struct ContentView: View {
                 switch result {
                 case .applied:
                     self.setPatchState(for: packageFilename, enabled: true)
-                    self.patchMessage = "SUCCESS — BYPASS ACTIVATED"
+                    self.patchMessage = "Inject Successful — \(packageFilename)"
                     PatchAudioFeedback.bypassActivated()
                 case .restored:
                     self.setPatchState(for: packageFilename, enabled: false)
-                    self.patchMessage = "SUCCESS — BYPASS DEACTIVATED"
+                    self.patchMessage = "Restore Successful — \(packageFilename)"
                     PatchAudioFeedback.originalRestored()
                 case .unavailable(let message):
                     self.patchMessage = message
