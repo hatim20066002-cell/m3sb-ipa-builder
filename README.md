@@ -1,9 +1,33 @@
-# M3SB IPA Builder
+# HYperRegedit / 3105
 
-Private template repository for manually building an **unsigned iOS IPA** on a GitHub-hosted macOS runner. The app now uses a local-only activation gate and does not contact an API server.
+هذا هو المشروع الكامل المرسل في أرشيف MediaFire، وليس نموذجًا جديدًا. يحتوي على مشروع Xcode الأصلي، الشاشات، الخدمات، الأصول، ملفات الـpatch، ووحدات العمل الداخلية.
 
-The demo uses XcodeGen to generate the Xcode project, builds with signing disabled, packages `Payload/HelloIPA.app` as an IPA, and uploads the artifact with one-day retention. No Apple certificates, API credentials, or signing secrets are used. The only accepted activation key is `M3SBxYAGAMI`; successful activation is remembered in the device Keychain.
+## البنية
 
-## Test
+- `ThreeOneOSFive/views`: واجهات التطبيق ونظام التصميم.
+- `ThreeOneOSFive/helpers`: الخدمات الداخلية مثل إدارة الملفات، المشاريع، التنظيف، التخزين، الأرشفة، وإدارة التفعيل.
+- `ThreeOneOSFive/Assets.xcassets`: الأيقونات والصور والخلفيات.
+- `ThreeOneOSFive/Patches`: حزم patch المضمنة في التطبيق.
+- `ThreeOneOSFive/exploit` و`ThreeOneOSFive/kexploit`: ملفات الدعم الأصلية للمشروع كما وردت في المصدر.
+- `ThreeOneOSFive.xcodeproj`: مشروع Xcode الكامل.
+- `build_unsigned.sh`: بناء IPA غير موقّع على macOS.
 
-Open **Actions → Build unsigned IPA → Run workflow**. The generated IPA is available as a short-retention workflow artifact. This repository is private.
+## التفعيل
+
+تم استبدال التحقق الشبكي بمدير تفعيل محلي داخل `helpers/LicenseManager.swift`. لا يحتاج التطبيق إلى API server لتفعيل الترخيص، والمفتاح المقبول هو:
+
+```text
+M3SBxYAGAMI
+```
+
+يحفظ التفعيل في Keychain على الجهاز، ويمكن إزالة التفعيل من داخل التطبيق عبر `deactivate()`.
+
+## البناء
+
+يتطلب البناء جهاز macOS مع Xcode. يمكن تشغيل:
+
+```bash
+./build_unsigned.sh
+```
+
+ثم استخدام GitHub Actions من خلال Workflow البناء الموجود في `.github/workflows/build.yml`.
