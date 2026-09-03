@@ -102,12 +102,12 @@ struct ContentView: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                patchCard(name: "MIRA ARRASTO", target: "FREE FIRE NORMAL", package: "AimDragFreeFire.3105", color: AppTheme.accent, state: $aimDragEnabled)
-                patchCard(name: "MIRA PESCOÇO", target: "FREE FIRE NORMAL", package: "AimNeckFreeFire.3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
-                patchCard(name: "HSSLA", target: "FREE FIRE MAX", package: "HSSLA.3105", color: AppTheme.accent, state: $hsslaEnabled)
-                patchCard(name: "PESCOÇO SEM ANTENA", target: "FREE FIRE MAX", package: "HSPESCOSEMANTENA.3105", color: AppTheme.accent, state: $hspEnabled)
-                patchCard(name: "PEITO OFF HYPER", target: "FREE FIRE NORMAL", package: "HSPEITOFFNORMALHYPER.3105", color: .teal, state: $hspeitoffEnabled)
-                patchCard(name: "HYPER BALAMAGICA", target: "FREE FIRE NORMAL", package: "HYPERBALAMAGICA.3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
+                patchCard(name: "Drag Aim", target: "FREE FIRE • NORMAL", package: "AimDragFreeFire.3105", color: AppTheme.accent, state: $aimDragEnabled)
+                patchCard(name: "Neck Aim", target: "FREE FIRE • NORMAL", package: "AimNeckFreeFire.3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
+                patchCard(name: "HSSLA", target: "FREE FIRE • MAX", package: "HSSLA.3105", color: AppTheme.accent, state: $hsslaEnabled)
+                patchCard(name: "Neck • No Antenna", target: "FREE FIRE • MAX", package: "HSPESCOSEMANTENA.3105", color: AppTheme.accent, state: $hspEnabled)
+                patchCard(name: "Chest Off • Hyper", target: "FREE FIRE • NORMAL", package: "HSPEITOFFNORMALHYPER.3105", color: .teal, state: $hspeitoffEnabled)
+                patchCard(name: "Hyper Balamagica", target: "FREE FIRE • NORMAL", package: "HYPERBALAMAGICA.3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
             }
 
             HStack(spacing: 8) {
