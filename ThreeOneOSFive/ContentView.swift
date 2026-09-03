@@ -32,6 +32,7 @@ struct ContentView: View {
                     patchOptions
                     gameLaunchPanel
                     footerStatus
+                    developerCredits
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 18)
@@ -222,6 +223,43 @@ struct ContentView: View {
         .padding(.vertical, 13)
         .background(Color.black.opacity(0.45), in: Capsule())
         .overlay(Capsule().stroke(AppTheme.accent.opacity(0.2), lineWidth: 1))
+    }
+
+    private var developerCredits: some View {
+        VStack(spacing: 10) {
+            Text("Developed by M3SB iOS & YAGAMI iOS")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.72))
+                .multilineTextAlignment(.center)
+
+            Text("Our Telegram channels")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .foregroundStyle(AppTheme.secondaryAccent.opacity(0.85))
+
+            HStack(spacing: 10) {
+                channelButton(title: "M3SB iOS", url: "https://t.me/m3sbios1")
+                channelButton(title: "YAGAMI iOS", url: "https://t.me/+5HHaZurHPA9hOWM8")
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.top, 4)
+        .padding(.bottom, 8)
+    }
+
+    private func channelButton(title: String, url: String) -> some View {
+        Button {
+            guard let destination = URL(string: url) else { return }
+            UIApplication.shared.open(destination)
+        } label: {
+            Label(title, systemImage: "paperplane.fill")
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .background(AppTheme.accent.opacity(0.18), in: Capsule())
+                .overlay(Capsule().stroke(AppTheme.accent.opacity(0.42), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 
     private func panelTitle(_ title: String, icon: String) -> some View {
