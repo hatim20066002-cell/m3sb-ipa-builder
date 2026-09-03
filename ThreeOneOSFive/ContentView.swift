@@ -12,13 +12,10 @@ struct ContentView: View {
     @State private var patchMessage = "READY — SELECT A PATCH"
     @State private var aimDragEnabled = false
     @State private var aimNeckEnabled = false
-    @State private var hsslaEnabled = false
-    @State private var hspEnabled = false
     @State private var hspeitoffEnabled = false
     @State private var hyperBalamagicaEnabled = false
     @State private var aimBodyPackageEnabled = false
     @State private var aimChestPackageEnabled = false
-    @State private var aimMagicPackageEnabled = false
 
     var body: some View {
         ZStack {
@@ -115,13 +112,10 @@ struct ContentView: View {
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
                 patchCard(name: "Aim Drag", target: "FREE FIRE • NORMAL", package: "AimDragFreeFire.3105", color: AppTheme.accent, state: $aimDragEnabled)
                 patchCard(name: "Aim Neck", target: "FREE FIRE • NORMAL", package: "AimNeckFreeFire.3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
-                patchCard(name: "Aim Body", target: "FREE FIRE • MAX", package: "HSSLA.3105", color: AppTheme.accent, state: $hsslaEnabled)
-                patchCard(name: "Magic Bullet", target: "FREE FIRE • MAX", package: "HSPESCOSEMANTENA.3105", color: AppTheme.accent, state: $hspEnabled)
                 patchCard(name: "Antenna", target: "FREE FIRE • NORMAL", package: "HSPEITOFFNORMALHYPER.3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
                 patchCard(name: "144 FPS", target: "FREE FIRE • NORMAL", package: "HYPERBALAMAGICA.3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
                 patchCard(name: "Aim Body", target: "FREE FIRE • NORMAL", package: "AIM BODY.3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
                 patchCard(name: "Aim Chest", target: "FREE FIRE • NORMAL", package: "AIM CHEST.3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
-                patchCard(name: "Magic Bullet", target: "FREE FIRE • MAX", package: "AIM MAGIC.3105", color: AppTheme.secondaryAccent, state: $aimMagicPackageEnabled)
             }
 
             HStack(spacing: 8) {
@@ -282,13 +276,10 @@ struct ContentView: View {
     private func syncPatchStates() {
         aimDragEnabled = isPatchActive("AimDragFreeFire.3105")
         aimNeckEnabled = isPatchActive("AimNeckFreeFire.3105")
-        hsslaEnabled = isPatchActive("HSSLA.3105")
-        hspEnabled = isPatchActive("HSPESCOSEMANTENA.3105")
         hspeitoffEnabled = isPatchActive("HSPEITOFFNORMALHYPER.3105")
         hyperBalamagicaEnabled = isPatchActive("HYPERBALAMAGICA.3105")
         aimBodyPackageEnabled = isPatchActive("AIM BODY.3105")
         aimChestPackageEnabled = isPatchActive("AIM CHEST.3105")
-        aimMagicPackageEnabled = isPatchActive("AIM MAGIC.3105")
     }
 
     private func isPatchActive(_ packageFilename: String) -> Bool {
@@ -306,13 +297,10 @@ struct ContentView: View {
         switch packageFilename {
         case "AimDragFreeFire.3105": aimDragEnabled = enabled
         case "AimNeckFreeFire.3105": aimNeckEnabled = enabled
-        case "HSSLA.3105": hsslaEnabled = enabled
-        case "HSPESCOSEMANTENA.3105": hspEnabled = enabled
         case "HSPEITOFFNORMALHYPER.3105": hspeitoffEnabled = enabled
         case "HYPERBALAMAGICA.3105": hyperBalamagicaEnabled = enabled
         case "AIM BODY.3105": aimBodyPackageEnabled = enabled
         case "AIM CHEST.3105": aimChestPackageEnabled = enabled
-        case "AIM MAGIC.3105": aimMagicPackageEnabled = enabled
         default: break
         }
     }
