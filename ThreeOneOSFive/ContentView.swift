@@ -45,6 +45,9 @@ struct ContentView: View {
         .sheet(isPresented: $showCleaner) {
             CleanerView()
         }
+        .sheet(item: $patchStore.passwordRequest, onDismiss: patchStore.cancelUnlock) { _ in
+            PatchUnlockPrompt(store: patchStore)
+        }
         .onAppear { syncPatchStates() }
         .onChange(of: scenePhase) { phase in
             guard phase == .active, !patchOperationBusy else { return }
@@ -90,7 +93,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             panelTitle("STATUS DO DISPOSITIVO", icon: "shield.lefthalf.filled")
             statusRow(icon: "apple.logo", title: "iOS", value: AppInfo.osVersion, color: AppTheme.secondaryAccent)
-            statusRow(icon: "iphone", title: "Dispositivo", value: AppInfo.displayMachineName, color: .cyan)
+            statusRow(icon: "iphone", title: "Dispositivo", value: AppInfo.displayMachineName, color: AppTheme.secondaryAccent)
             statusRow(icon: "checkmark.seal.fill", title: "Suporte", value: appState.isSupported ? "COMPATÍVEL" : "INCOMPATÍVEL", color: appState.isSupported ? .green : .red)
         }
         .padding(16)
@@ -113,10 +116,10 @@ struct ContentView: View {
                 patchCard(name: "Aim Neck", target: "FREE FIRE • NORMAL", package: "AimNeckFreeFire.3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
                 patchCard(name: "Aim Body", target: "FREE FIRE • MAX", package: "HSSLA.3105", color: AppTheme.accent, state: $hsslaEnabled)
                 patchCard(name: "Magic Bullet", target: "FREE FIRE • MAX", package: "HSPESCOSEMANTENA.3105", color: AppTheme.accent, state: $hspEnabled)
-                patchCard(name: "Antenna", target: "FREE FIRE • NORMAL", package: "HSPEITOFFNORMALHYPER.3105", color: .teal, state: $hspeitoffEnabled)
+                patchCard(name: "Antenna", target: "FREE FIRE • NORMAL", package: "HSPEITOFFNORMALHYPER.3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
                 patchCard(name: "144 FPS", target: "FREE FIRE • NORMAL", package: "HYPERBALAMAGICA.3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
                 patchCard(name: "Aim Body", target: "FREE FIRE • NORMAL", package: "AIM BODY.3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
-                patchCard(name: "Aim Chest", target: "FREE FIRE • NORMAL", package: "AIM CHEST.3105", color: .orange, state: $aimChestPackageEnabled)
+                patchCard(name: "Aim Chest", target: "FREE FIRE • NORMAL", package: "AIM CHEST.3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
                 patchCard(name: "Magic Bullet", target: "FREE FIRE • MAX", package: "AIM MAGIC.3105", color: AppTheme.secondaryAccent, state: $aimMagicPackageEnabled)
             }
 
@@ -155,7 +158,7 @@ struct ContentView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 52)
                     .background(Color.black.opacity(0.40), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.orange.opacity(0.52), lineWidth: 1))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(AppTheme.accent.opacity(0.52), lineWidth: 1))
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Open cache and temporary files cleaner")
@@ -287,9 +290,10 @@ struct ContentView: View {
                     result = .restored
                 } else {
                     guard let project else {
-                        result = .unavailable("PACKAGE LOCKED — UNLOCK REQUIRED")
+                        result = .unavailable("PASSWORD REQUIRED — UNLOCK PACKAGE")
                         DispatchQueue.main.async {
-                            self.patchMessage = "LOCKED — PASSWORD REQUIRED"
+                            self.patchStore.requestUnlock(for: item)
+                            self.patchMessage = "PASSWORD REQUIRED — ENTER PACKAGE PASSWORD"
                             self.patchOperationBusy = false
                         }
                         return
@@ -398,21 +402,55 @@ private enum PatchAudioFeedback {
     }
 }
 
+private struct PatchUnlockPrompt: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var store: PatchProjectStore
+    @State private var password = ""
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    SecureField("Package password", text: $password)
+                        .textContentType(.password)
+                        .submitLabel(.done)
+                        .onSubmit(unlock)
+                        .onChange(of: password) { _ in store.clearUnlockError() }
+                    if let errorKey = store.unlockErrorKey {
+                        Text(AppLanguage.english.text(errorKey))
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                } footer: {
+                    Text("Enter the password once to unlock this 3105 package on this device.")
+                }
+            }
+            .navigationTitle("Unlock package")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Unlock", action: unlock)
+                        .disabled(password.isEmpty || store.isBusy)
+                }
+            }
+        }
+    }
+
+    private func unlock() {
+        guard !password.isEmpty else { return }
+        store.unlock(password: password)
+    }
+}
+
 struct AnimatedHyperBackdrop: View {
     @State private var animate = false
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                Color(red: 0.002, green: 0.006, blue: 0.025)
-                Image("HYperRegeditArtwork")
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: proxy.size.width * 1.15, height: proxy.size.height * 0.80)
-                    .opacity(0.18)
-                    .blur(radius: 0.2)
-                    .scaleEffect(animate ? 1.06 : 1.0)
-                    .offset(y: animate ? -12 : 12)
-                    .mask(LinearGradient(colors: [.clear, .white, .white, .clear], startPoint: .top, endPoint: .bottom))
+                AppTheme.pageBackground
                 Circle()
                     .fill(AppTheme.accent.opacity(0.12))
                     .frame(width: 280, height: 280)
