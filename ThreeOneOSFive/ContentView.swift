@@ -1,534 +1,547 @@
 import SwiftUI
-import UIKit
-import AVFoundation
 
 struct ContentView: View {
-    @Environment(\.scenePhase) private var scenePhase
-    @EnvironmentObject private var appState: AppState
-    @State private var showSettings = false
-    @State private var showCleaner = false
-    @StateObject private var patchStore = PatchProjectStore()
-    @State private var patchOperationBusy = false
-    @State private var patchMessage = "READY — SELECT A MODULE"
-    @State private var aimDragEnabled = false
-    @State private var aimNeckEnabled = false
-    @State private var hspeitoffEnabled = false
-    @State private var hyperBalamagicaEnabled = false
-    @State private var aimBodyPackageEnabled = false
-    @State private var aimChestPackageEnabled = false
-    @State private var magicEnabled = false
+    @State private var selectedTab: VesperTab = .aim
+    @State private var isLoading = true
+    @State private var completedResources = 0
+    @State private var patchMessage = "READY — SELECT A PATCH"
+    @State private var processingPatch: String?
+    @State private var keepPatchActive = true
+    @State private var aimHead = false
+    @State private var aimDrag = false
+    @State private var aimBody = false
+    @State private var magicBullet = false
+    @State private var aimDragAntenna = false
+    @State private var aimHeadAntenna = false
+    @State private var magicAntenna = false
+    @State private var fps144 = false
+
+    private let resources = [
+        "AIM HEAD", "AIM DRAG", "AIM BODY", "MAGIC BULET",
+        "AIM DRAG + ANTENA", "AIM HEAD + ANTENA", "MAGIC BULET + ANTENA", "144 FPS", "AIM BODY"
+    ]
 
     var body: some View {
         ZStack {
-            AnimatedHyperBackdrop()
+            VesperBackground()
                 .ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 18) {
-                    brandHeader
-                    devicePanel
-                    patchOptions
-                    gameLaunchPanel
-                    footerStatus
-                    developerCredits
+            VStack(spacing: 0) {
+                if isLoading {
+                    loadingView
+                        .transition(.opacity)
+                } else {
+                    mainView
+                        .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
-                .padding(.horizontal, 18)
-                .padding(.top, 18)
-                .padding(.bottom, 28)
             }
         }
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-        }
-        .sheet(isPresented: $showCleaner) {
-            CleanerView()
-        }
-        .sheet(item: $patchStore.passwordRequest, onDismiss: patchStore.cancelUnlock) { _ in
-            PatchUnlockPrompt(store: patchStore)
-        }
-        .onAppear { syncPatchStates() }
-        .onChange(of: scenePhase) { phase in
-            guard phase == .active, !patchOperationBusy else { return }
-            syncPatchStates()
-            patchMessage = "READY — SELECT A MODULE"
-        }
+        .task { await runResourceLoading() }
     }
 
-    private var brandHeader: some View {
-        HStack(spacing: 14) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text("VESPER EXTERNAL")
-                    .font(.system(size: 25, weight: .black, design: .rounded))
-                    .tracking(3)
-                    .foregroundStyle(.white)
-                Text("DEVELOPER CONTROL CENTER")
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .tracking(1.7)
-                    .foregroundStyle(AppTheme.accent)
+    private var loadingView: some View {
+        VStack(spacing: 0) {
+            VesperTopBar(title: "VESPER EXTERNAL")
+                .padding(.horizontal, 18)
+                .padding(.top, 12)
+
+            Spacer(minLength: 38)
+
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("DOWNLOAD RESOURCE FROM SERVER")
+                            .font(.system(size: 13, weight: .black, design: .rounded))
+                            .tracking(1.1)
+                            .foregroundStyle(.white)
+                        Text("SYNCING VESPERDASH MODULES")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .tracking(1.2)
+                            .foregroundStyle(.white.opacity(0.42))
+                    }
+                    Spacer()
+                    Text("\(completedResources)/\(resources.count)")
+                        .font(.system(size: 12, weight: .black, design: .rounded))
+                        .foregroundStyle(AppTheme.accent)
+                }
+
+                ProgressView(value: Double(completedResources), total: Double(resources.count))
+                    .tint(AppTheme.accent)
+                    .scaleEffect(x: 1, y: 1.8, anchor: .center)
+
+                VStack(spacing: 0) {
+                    ForEach(Array(resources.enumerated()), id: \.offset) { index, resource in
+                        ResourceRow(name: resource, completed: index < completedResources)
+                        if index < resources.count - 1 {
+                            Divider().overlay(Color.white.opacity(0.06))
+                        }
+                    }
+                }
+                .padding(.vertical, 6)
+                .background(AppTheme.referenceCard, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(AppTheme.accent.opacity(0.28), lineWidth: 1))
             }
+            .padding(18)
+            .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(AppTheme.accent.opacity(0.40), lineWidth: 1))
+            .padding(.horizontal, 18)
 
             Spacer()
-
-            Button {
-                showSettings = true
-            } label: {
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(AppTheme.accent)
-                    .frame(width: 48, height: 48)
-                    .background(Color.black.opacity(0.38), in: Circle())
-                    .overlay(Circle().stroke(AppTheme.accent.opacity(0.42), lineWidth: 1))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Open settings")
+            Text("SECURE RESOURCE CHANNEL • VESPERDASH")
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .tracking(1.2)
+                .foregroundStyle(.white.opacity(0.35))
+                .padding(.bottom, 24)
         }
     }
 
-    private var devicePanel: some View {
+    private var mainView: some View {
         VStack(spacing: 0) {
-            panelTitle("DEVICE STATUS", icon: "shield.lefthalf.filled")
-            statusRow(icon: "apple.logo", title: "iOS", value: AppInfo.osVersion, color: AppTheme.secondaryAccent)
-            statusRow(icon: "iphone", title: "Device", value: AppInfo.displayMachineName, color: AppTheme.secondaryAccent)
-            statusRow(icon: "checkmark.seal.fill", title: "Support", value: appState.isSupported ? "SUPPORTED" : "UNSUPPORTED", color: appState.isSupported ? .green : .red)
+            VesperTopBar(title: selectedTab.title)
+                .padding(.horizontal, 18)
+                .padding(.top, 12)
+
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 12) {
+                    identityCard
+                    injectStatusCard
+                    selectedContent
+                }
+                .padding(.horizontal, 18)
+                .padding(.top, 12)
+                .padding(.bottom, 14)
+            }
+
+            VesperTabBar(selected: $selectedTab)
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+                .background(.ultraThinMaterial.opacity(0.92))
         }
-        .padding(16)
-        .background(Color.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(AppTheme.accent.opacity(0.38), lineWidth: 1))
     }
 
-    private var patchOptions: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                panelTitle("PATCH OPTIONS", icon: "bolt.fill")
-                Spacer()
-                    Text("SELECT MODULE")
+    private var identityCard: some View {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle().fill(AppTheme.accent.opacity(0.20))
+                Image(systemName: "bolt.horizontal.circle.fill")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundStyle(AppTheme.accent)
+            }
+            .frame(width: 48, height: 48)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("VESPER EXTERNAL")
+                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .tracking(1.7)
+                    .foregroundStyle(.white)
+                Text("PATCH CONTROL CENTER")
                     .font(.system(size: 9, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.45))
+                    .tracking(1.3)
+                    .foregroundStyle(.white.opacity(0.48))
             }
+            Spacer()
+            Image(systemName: "ellipsis.circle.fill")
+                .font(.system(size: 25, weight: .bold))
+                .foregroundStyle(AppTheme.accent)
+        }
+        .padding(14)
+        .background(AppTheme.referenceCard, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(AppTheme.accent.opacity(0.42), lineWidth: 1))
+        .shadow(color: AppTheme.accent.opacity(0.18), radius: 16)
+    }
 
-            LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                patchCard(name: "Aim Drag", target: "MODULE • NORMAL", package: "xTop1 External File (6).3105", color: AppTheme.accent, state: $aimDragEnabled)
-                patchCard(name: "Aim Neck", target: "MODULE • NORMAL", package: "xTop1 External File (7).3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
-                patchCard(name: "Antenna", target: "MODULE • NORMAL", package: "xTop1 External File (8).3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
-                patchCard(name: "144 FPS", target: "MODULE • NORMAL", package: "xTop1 External File (10).3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
-                patchCard(name: "Aim Body", target: "MODULE • NORMAL", package: "xTop1 External File (12).3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
-                patchCard(name: "Aim Chest", target: "MODULE • NORMAL", package: "xTop1 External File (2).3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
-                patchCard(name: "Magic", target: "MODULE • NORMAL", package: "xTop1 External File (14).3105", color: AppTheme.accent, state: $magicEnabled)
+    private var injectStatusCard: some View {
+        HStack(spacing: 12) {
+            Circle()
+                .fill(processingPatch == nil ? AppTheme.accent : .orange)
+                .frame(width: 9, height: 9)
+                .shadow(color: processingPatch == nil ? AppTheme.accent : .orange, radius: 7)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("INJECT STATUS")
+                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .tracking(1.1)
+                    .foregroundStyle(AppTheme.accent)
+                Text(patchMessage)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
             }
+            Spacer()
+            Text(processingPatch == nil ? "READY" : "RUNNING")
+                .font(.system(size: 9, weight: .black, design: .rounded))
+                .tracking(0.8)
+                .foregroundStyle(processingPatch == nil ? .green : .orange)
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Color.black.opacity(0.32), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(AppTheme.accent.opacity(0.24), lineWidth: 1))
+        .animation(.easeInOut(duration: 0.22), value: patchMessage)
+    }
 
-            HStack(spacing: 8) {
-                Circle().fill(patchMessage.localizedCaseInsensitiveContains("successful") ? .green : AppTheme.accent).frame(width: 7, height: 7)
-                Text(patchOperationBusy ? "PROCESSING PATCH…" : patchMessage)
-                    .font(.system(size: 10, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.72))
-                    .lineLimit(2)
+    @ViewBuilder
+    private var selectedContent: some View {
+        switch selectedTab {
+        case .aim:
+            aimContent
+        case .esp:
+            emptyContent(title: "ESP", subtitle: "REMOTE ESP PATCHES", message: "NO ESP PATCHES — ADD FILES FROM VESPERDASH")
+        case .hologram:
+            emptyContent(title: "HOLOGRAM", subtitle: "REMOTE HOLOGRAM PATCHES", message: "NO HOLOGRAM PATCHES — ADD FILES FROM VESPERDASH")
+        case .skin:
+            emptyContent(title: "SKIN MOD", subtitle: "REMOTE SKIN PATCHES", message: "NO SKIN MOD PATCHES — ADD FILES FROM VESPERDASH")
+        case .files:
+            fileStatusContent
+        }
+    }
+
+    private var aimContent: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            categoryCard(title: "AIM", subtitle: "REMOTE AIM PATCHES", icon: "scope")
+            HStack {
+                Label("FF NORMAL", systemImage: "bolt.fill")
+                    .font(.system(size: 11, weight: .black, design: .rounded))
+                    .tracking(1.0)
+                    .foregroundStyle(AppTheme.accent)
                 Spacer()
+                Text("SELECT PATCH")
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .tracking(0.8)
+                    .foregroundStyle(.white.opacity(0.42))
+            }
+            .padding(.horizontal, 4)
+            VStack(spacing: 0) {
+                patchRow("AIM HEAD", description: "FREE FIRE • NORMAL", icon: "scope", isOn: $aimHead)
+                patchRow("AIM DRAG", description: "FREE FIRE • NORMAL", icon: "arrow.up.right", isOn: $aimDrag)
+                patchRow("AIM BODY", description: "FREE FIRE • NORMAL", icon: "figure.stand", isOn: $aimBody)
+                patchRow("MAGIC BULET", description: "FREE FIRE • NORMAL", icon: "wand.and.stars", isOn: $magicBullet)
+                patchRow("AIM DRAG + ANTENA", description: "FREE FIRE • NORMAL", icon: "antenna.radiowaves.left.and.right", isOn: $aimDragAntenna)
+                patchRow("AIM HEAD + ANTENA", description: "FREE FIRE • NORMAL", icon: "dot.radiowaves.left.and.right", isOn: $aimHeadAntenna)
+                patchRow("MAGIC BULET + ANTENA", description: "FREE FIRE • NORMAL", icon: "sparkles", isOn: $magicAntenna)
+                patchRow("144 FPS", description: "FREE FIRE • NORMAL", icon: "speedometer", isOn: $fps144)
+            }
+            .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(AppTheme.accent.opacity(0.24), lineWidth: 1))
+        }
+    }
+
+    private func emptyContent(title: String, subtitle: String, message: String) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            categoryCard(title: title, subtitle: subtitle, icon: title == "ESP" ? "eye" : "sparkles")
+            Text(message)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .tracking(0.7)
+                .foregroundStyle(.white.opacity(0.42))
+                .padding(.horizontal, 6)
+            Spacer(minLength: 280)
+        }
+    }
+
+    private var fileStatusContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 10) {
+                Image(systemName: "folder.fill")
+                    .font(.system(size: 19, weight: .bold))
+                    .foregroundStyle(AppTheme.accent)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("PATCH FILES")
+                        .font(.system(size: 12, weight: .black, design: .rounded))
+                        .tracking(1.0)
+                        .foregroundStyle(.white)
+                    Text("VESPERDASH • LOCAL LIBRARY")
+                        .font(.system(size: 9, weight: .bold, design: .rounded))
+                        .tracking(0.8)
+                        .foregroundStyle(.white.opacity(0.42))
+                }
+                Spacer()
+                Toggle("", isOn: $keepPatchActive)
+                    .labelsHidden()
+                    .tint(AppTheme.accent)
+            }
+            .padding(14)
+            .background(AppTheme.referenceCard, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(AppTheme.accent.opacity(0.30), lineWidth: 1))
+
+            Text("KEEP PATCH ACTIVE AFTER EXIT")
+                .font(.system(size: 9, weight: .black, design: .rounded))
+                .tracking(0.8)
+                .foregroundStyle(.white.opacity(0.52))
+                .padding(.horizontal, 5)
+
+            VStack(spacing: 0) {
+                ForEach(Array(resources.enumerated()), id: \.offset) { index, resource in
+                    FileStatusRow(index: index + 1, name: resource)
+                    if index < resources.count - 1 {
+                        Divider().overlay(Color.white.opacity(0.06))
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(AppTheme.accent.opacity(0.22), lineWidth: 1))
+        }
+    }
+
+    private func categoryCard(title: String, subtitle: String, icon: String) -> some View {
+        HStack(spacing: 11) {
+            ZStack {
+                Circle().fill(AppTheme.accent.opacity(0.18))
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(AppTheme.accent)
+            }
+            .frame(width: 40, height: 40)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(.system(size: 16, weight: .black, design: .rounded))
+                    .tracking(1.3)
+                    .foregroundStyle(.white)
+                Text(subtitle)
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .tracking(0.8)
+                    .foregroundStyle(.white.opacity(0.44))
+            }
+            Spacer()
+        }
+        .padding(13)
+        .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 17, style: .continuous).stroke(AppTheme.accent.opacity(0.25), lineWidth: 1))
+    }
+
+    private func patchRow(_ name: String, description: String, icon: String, isOn: Binding<Bool>) -> some View {
+        Button {
+            withAnimation(.easeInOut(duration: 0.22)) {
+                isOn.wrappedValue.toggle()
+                processingPatch = isOn.wrappedValue ? name : nil
+                patchMessage = isOn.wrappedValue ? "PROCESSING — \(name)" : "READY — SELECT A PATCH"
+            }
+        } label: {
+            HStack(spacing: 11) {
+                Image(systemName: icon)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(isOn.wrappedValue ? AppTheme.accent : .white.opacity(0.42))
+                    .frame(width: 25)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(name)
+                        .font(.system(size: 12, weight: .black, design: .rounded))
+                        .tracking(0.5)
+                        .foregroundStyle(.white)
+                    Text(description)
+                        .font(.system(size: 8, weight: .bold, design: .rounded))
+                        .tracking(0.5)
+                        .foregroundStyle(.white.opacity(0.38))
+                }
+                Spacer()
+                Text(isOn.wrappedValue ? "ON" : "OFF")
+                    .font(.system(size: 9, weight: .black, design: .rounded))
+                    .foregroundStyle(isOn.wrappedValue ? AppTheme.accent : .white.opacity(0.36))
+                Toggle("", isOn: isOn)
+                    .labelsHidden()
+                    .tint(AppTheme.accent)
+                    .allowsHitTesting(false)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(Color.black.opacity(0.34), in: Capsule())
-        }
-    }
-
-    private func patchCard(name: String, target: String, package: String, color: Color, state: Binding<Bool>) -> some View {
-        PatchOptionCard(name: name, target: target, color: color, isEnabled: state, isBusy: patchOperationBusy) {
-            togglePatch(packageFilename: package, state: state)
-        }
-    }
-
-    private var gameLaunchPanel: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            panelTitle("LIVE PREVIEW", icon: "play.rectangle.fill")
-            HStack(spacing: 12) {
-                launchButton(title: "LIVE PREVIEW", subtitle: "Local dashboard", color: AppTheme.accent, scheme: "vesper")
-                lockedLaunchButton(title: "BUILD 1.4.0", subtitle: "Locked • Coming Soon", color: AppTheme.secondaryAccent)
-            }
-            Button {
-                showCleaner = true
-            } label: {
-                Label("Clean Cache & Temp", systemImage: "trash.slash.fill")
-                    .font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, minHeight: 52)
-                    .background(Color.black.opacity(0.40), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(AppTheme.accent.opacity(0.52), lineWidth: 1))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Open cache and temporary files cleaner")
-        }
-    }
-
-    private func launchButton(title: String, subtitle: String, color: Color, scheme: String) -> some View {
-        Button { openGame(scheme: scheme) } label: {
-            VStack(alignment: .leading, spacing: 7) {
-                Image(systemName: "arrow.up.right.square.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(color)
-                Text(title)
-                    .font(.system(size: 13, weight: .black, design: .rounded))
-                    .foregroundStyle(.white)
-                Text(subtitle)
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.5))
-            }
-            .frame(maxWidth: .infinity, minHeight: 82, alignment: .leading)
-            .padding(.horizontal, 14)
-            .background(Color.black.opacity(0.40), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(color.opacity(0.38), lineWidth: 1))
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 
-    private func lockedLaunchButton(title: String, subtitle: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 7) {
-            Image(systemName: "lock.fill")
-                .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(color.opacity(0.72))
+    private func runResourceLoading() async {
+        guard isLoading else { return }
+        for index in 1...resources.count {
+            try? await Task.sleep(nanoseconds: 380_000_000)
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.18)) {
+                    completedResources = index
+                }
+            }
+        }
+        try? await Task.sleep(nanoseconds: 350_000_000)
+        await MainActor.run {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                isLoading = false
+            }
+        }
+    }
+}
+
+enum VesperTab: String, CaseIterable, Identifiable {
+    case aim = "AIM"
+    case esp = "ESP"
+    case hologram = "HOLOGRAM"
+    case skin = "SKIN MOD"
+    case files = "FILE STATUS"
+
+    var id: String { rawValue }
+    var title: String { rawValue }
+    var icon: String {
+        switch self {
+        case .aim: return "scope"
+        case .esp: return "eye"
+        case .hologram: return "sparkles"
+        case .skin: return "tshirt.fill"
+        case .files: return "folder.fill"
+        }
+    }
+}
+
+private struct VesperTopBar: View {
+    let title: String
+
+    var body: some View {
+        HStack {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 17, weight: .bold))
+                .foregroundStyle(.white.opacity(0.75))
+            Spacer()
             Text(title)
-                .font(.system(size: 13, weight: .black, design: .rounded))
-                .foregroundStyle(.white.opacity(0.72))
-            Text(subtitle)
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-                .foregroundStyle(color.opacity(0.72))
-        }
-        .frame(maxWidth: .infinity, minHeight: 82, alignment: .leading)
-        .padding(.horizontal, 14)
-        .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(color.opacity(0.24), lineWidth: 1))
-        .opacity(0.72)
-        .accessibilityLabel("FF MAX locked, coming soon")
-    }
-
-    private var footerStatus: some View {
-        HStack(spacing: 10) {
-            Circle().fill(.green).frame(width: 9, height: 9).shadow(color: .green, radius: 6)
-            Text("SYSTEM READY")
-                .font(.system(size: 10, weight: .black, design: .rounded))
-                .tracking(1.2)
-                .foregroundStyle(.white.opacity(0.72))
-            Spacer()
-            Text("VESPER • ONLINE")
-                .font(.system(size: 9, weight: .bold, design: .rounded))
-                .foregroundStyle(AppTheme.accent.opacity(0.8))
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 13)
-        .background(Color.black.opacity(0.45), in: Capsule())
-        .overlay(Capsule().stroke(AppTheme.accent.opacity(0.2), lineWidth: 1))
-    }
-
-    private var developerCredits: some View {
-        VStack(spacing: 10) {
-            Text("VESPER UI LAB • DEVELOPER BUILD")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.72))
-                .multilineTextAlignment(.center)
-
-            Text("Our Telegram channels")
-                .font(.system(size: 10, weight: .semibold, design: .rounded))
-                .foregroundStyle(AppTheme.secondaryAccent.opacity(0.85))
-
-            HStack(spacing: 10) {
-                channelButton(title: "M3SB iOS", url: "https://t.me/m3sbios1")
-                channelButton(title: "YAGAMI iOS", url: "https://t.me/+5HHaZurHPA9hOWM8")
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 4)
-        .padding(.bottom, 8)
-    }
-
-    private func channelButton(title: String, url: String) -> some View {
-        Button {
-            guard let destination = URL(string: url) else { return }
-            UIApplication.shared.open(destination)
-        } label: {
-            Label(title, systemImage: "paperplane.fill")
-                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .font(.system(size: 16, weight: .black, design: .rounded))
+                .tracking(1.4)
                 .foregroundStyle(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 9)
-                .background(AppTheme.accent.opacity(0.18), in: Capsule())
-                .overlay(Capsule().stroke(AppTheme.accent.opacity(0.42), lineWidth: 1))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func panelTitle(_ title: String, icon: String) -> some View {
-        Label(title, systemImage: icon)
-            .font(.system(size: 12, weight: .black, design: .rounded))
-            .tracking(1.4)
-            .foregroundStyle(AppTheme.accent)
-    }
-
-    private func statusRow(icon: String, title: String, value: String, color: Color) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon).font(.system(size: 17, weight: .bold)).foregroundStyle(color).frame(width: 24)
-            Text(title).font(.system(size: 14, weight: .semibold, design: .rounded)).foregroundStyle(.white.opacity(0.58))
             Spacer()
-            Text(value).font(.system(size: 14, weight: .black, design: .rounded)).foregroundStyle(.white)
+            Image(systemName: "ellipsis")
+                .font(.system(size: 19, weight: .bold))
+                .foregroundStyle(AppTheme.accent)
         }
-        .padding(.top, 14)
-    }
-
-    private func syncPatchStates() {
-        aimDragEnabled = isPatchActive("xTop1 External File (6).3105")
-        aimNeckEnabled = isPatchActive("xTop1 External File (7).3105")
-        hspeitoffEnabled = isPatchActive("xTop1 External File (8).3105")
-        hyperBalamagicaEnabled = isPatchActive("xTop1 External File (10).3105")
-        aimBodyPackageEnabled = isPatchActive("xTop1 External File (12).3105")
-        aimChestPackageEnabled = isPatchActive("xTop1 External File (2).3105")
-        magicEnabled = isPatchActive("xTop1 External File (14).3105")
-    }
-
-    private func isPatchActive(_ packageFilename: String) -> Bool {
-        patchStore.items.first(where: { $0.packageURL.lastPathComponent.caseInsensitiveCompare(packageFilename) == .orderedSame })
-            .flatMap { DevicePatchService.latestReceipt(projectID: $0.id) } != nil
-    }
-
-    private enum PatchActionResult {
-        case applied
-        case restored
-        case unavailable(String)
-    }
-
-    private func setPatchState(for packageFilename: String, enabled: Bool) {
-        switch packageFilename {
-        case "xTop1 External File (6).3105": aimDragEnabled = enabled
-        case "xTop1 External File (7).3105": aimNeckEnabled = enabled
-        case "xTop1 External File (8).3105": hspeitoffEnabled = enabled
-        case "xTop1 External File (10).3105": hyperBalamagicaEnabled = enabled
-        case "xTop1 External File (12).3105": aimBodyPackageEnabled = enabled
-        case "xTop1 External File (2).3105": aimChestPackageEnabled = enabled
-        case "xTop1 External File (14).3105": magicEnabled = enabled
-        default: break
-        }
-    }
-
-    private func togglePatch(packageFilename: String, state: Binding<Bool>) {
-        guard !patchOperationBusy else { return }
-        guard let item = patchStore.items.first(where: { $0.packageURL.lastPathComponent.caseInsensitiveCompare(packageFilename) == .orderedSame }) else {
-            patchMessage = "ERROR — PACKAGE NOT FOUND"
-            log("patch: package not found: \(packageFilename)")
-            return
-        }
-
-        let wasEnabled = state.wrappedValue
-        patchOperationBusy = true
-        patchMessage = "PROCESSING — \(packageFilename)"
-        let project = item.project
-        let projectID = item.id
-
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result: PatchActionResult
-            do {
-                if wasEnabled {
-                    guard let receipt = DevicePatchService.latestReceipt(projectID: projectID) else {
-                        result = .unavailable("NO ACTIVE RECEIPT — NOTHING TO RESTORE")
-                        DispatchQueue.main.async {
-                            self.setPatchState(for: packageFilename, enabled: false)
-                            self.patchMessage = "OFF — NO ACTIVE PATCH FOUND"
-                            self.patchOperationBusy = false
-                        }
-                        return
-                    }
-                    try DevicePatchService.restore(receipt: receipt)
-                    result = .restored
-                } else {
-                    guard let project else {
-                        result = .unavailable("PASSWORD REQUIRED — UNLOCK PACKAGE")
-                        DispatchQueue.main.async {
-                            self.patchStore.requestUnlock(for: item)
-                            self.patchMessage = "PASSWORD REQUIRED — ENTER PACKAGE PASSWORD"
-                            self.patchOperationBusy = false
-                        }
-                        return
-                    }
-                    _ = try DevicePatchService.apply(project: project)
-                    result = .applied
-                }
-            } catch {
-                result = .unavailable("FAILED — \(String(describing: error))")
-            }
-
-            DispatchQueue.main.async {
-                switch result {
-                case .applied:
-                    self.setPatchState(for: packageFilename, enabled: true)
-                    self.patchMessage = "Inject Successful — \(packageFilename)"
-                    PatchAudioFeedback.bypassActivated()
-                case .restored:
-                    self.setPatchState(for: packageFilename, enabled: false)
-                    self.patchMessage = "Restore Successful — \(packageFilename)"
-                    PatchAudioFeedback.originalRestored()
-                case .unavailable(let message):
-                    self.patchMessage = message
-                }
-                self.patchOperationBusy = false
-            }
-        }
-    }
-
-    private func openGame(scheme: String) {
-        guard let url = URL(string: "\(scheme)://") else { return }
-        UIApplication.shared.open(url, options: [:]) { success in
-            log("launch: \(scheme) success=\(success)")
-        }
+        .frame(height: 42)
     }
 }
 
-private struct PatchOptionCard: View {
+private struct ResourceRow: View {
     let name: String
-    let target: String
-    let color: Color
-    @Binding var isEnabled: Bool
-    let isBusy: Bool
-    let action: () -> Void
+    let completed: Bool
 
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 11) {
-                HStack {
-                    Image(systemName: "bolt.fill").font(.system(size: 16, weight: .black)).foregroundStyle(color)
-                    Spacer()
-                    Text(isEnabled ? "ON" : "OFF")
-                        .font(.system(size: 11, weight: .black, design: .rounded))
-                        .foregroundStyle(isEnabled ? .green : .white.opacity(0.58))
-                }
+        HStack(spacing: 10) {
+            Image(systemName: completed ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(completed ? .green : AppTheme.accent.opacity(0.7))
+            Text(name)
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .tracking(0.5)
+                .foregroundStyle(completed ? .white : .white.opacity(0.56))
+            Spacer()
+            if completed {
+                Text("SYNCED")
+                    .font(.system(size: 8, weight: .black, design: .rounded))
+                    .foregroundStyle(.green.opacity(0.85))
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .animation(.easeInOut(duration: 0.2), value: completed)
+    }
+}
+
+private struct FileStatusRow: View {
+    let index: Int
+    let name: String
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "doc.fill")
+                .font(.system(size: 15, weight: .bold))
+                .foregroundStyle(AppTheme.accent)
+                .frame(width: 24)
+            VStack(alignment: .leading, spacing: 3) {
                 Text(name)
-                    .font(.system(size: 17, weight: .black, design: .rounded))
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.78)
-                Text(target)
                     .font(.system(size: 10, weight: .black, design: .rounded))
-                    .tracking(1.3)
-                    .foregroundStyle(color)
-                HStack(spacing: 7) {
-                    Circle().fill(isEnabled ? Color.green : Color.white.opacity(0.25)).frame(width: 8, height: 8)
-                    Text(isEnabled ? "PATCH ACTIVE" : "ACTIVATE PATCH")
-                        .font(.system(size: 9, weight: .black, design: .rounded))
-                        .tracking(0.8)
-                        .foregroundStyle(.white.opacity(0.65))
-                }
+                    .foregroundStyle(.white)
+                Text("#\(index) • AIM • NORMAL")
+                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.38))
             }
-            .frame(maxWidth: .infinity, minHeight: 142, alignment: .leading)
-            .padding(14)
-            .background(Color.black.opacity(0.52), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(isEnabled ? color.opacity(0.85) : color.opacity(0.28), lineWidth: isEnabled ? 1.5 : 1))
-            .shadow(color: isEnabled ? color.opacity(0.20) : .clear, radius: 12)
+            Spacer()
+            Text("SAFE")
+                .font(.system(size: 8, weight: .black, design: .rounded))
+                .tracking(0.8)
+                .foregroundStyle(.green)
         }
-        .buttonStyle(.plain)
-        .disabled(isBusy)
-        .opacity(isBusy ? 0.55 : 1)
-        .accessibilityLabel("\(name), \(target), \(isEnabled ? "On" : "Off")")
+        .padding(.vertical, 11)
     }
 }
 
-private enum PatchAudioFeedback {
-    private static let synthesizer = AVSpeechSynthesizer()
-    static func bypassActivated() { speak("Bypass ativado") }
-    static func originalRestored() { speak("Bypass desativado") }
-    private static func speak(_ message: String) {
-        let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-        try? session.setActive(true, options: [])
-        synthesizer.stopSpeaking(at: .immediate)
-        let utterance = AVSpeechUtterance(string: message)
-        let voices = AVSpeechSynthesisVoice.speechVoices()
-        utterance.voice = voices.first(where: {
-            ($0.language.hasPrefix("pt-BR") || $0.language.hasPrefix("pt-PT") || $0.language.hasPrefix("pt")) && $0.gender == .female && $0.quality == .enhanced
-        }) ?? voices.first(where: {
-            $0.language.hasPrefix("pt-BR") || $0.language.hasPrefix("pt-PT") || $0.language.hasPrefix("pt")
-        }) ?? AVSpeechSynthesisVoice(language: "pt-BR")
-        utterance.rate = 0.43
-        utterance.pitchMultiplier = 1.10
-        utterance.volume = 0.90
-        synthesizer.speak(utterance)
-    }
-}
-
-private struct PatchUnlockPrompt: View {
-    @Environment(\.dismiss) private var dismiss
-    @ObservedObject var store: PatchProjectStore
-    @State private var password = ""
+private struct VesperTabBar: View {
+    @Binding var selected: VesperTab
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    SecureField("Package password", text: $password)
-                        .textContentType(.password)
-                        .submitLabel(.done)
-                        .onSubmit(unlock)
-                        .onChange(of: password) { _ in store.clearUnlockError() }
-                    if let errorKey = store.unlockErrorKey {
-                        Text(AppLanguage.english.text(errorKey))
-                            .font(.footnote)
-                            .foregroundStyle(.red)
+        HStack(spacing: 2) {
+            ForEach(VesperTab.allCases) { tab in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.20)) { selected = tab }
+                } label: {
+                    VStack(spacing: 5) {
+                        Image(systemName: tab.icon)
+                            .font(.system(size: 15, weight: .bold))
+                        Text(tab.rawValue)
+                            .font(.system(size: 7, weight: .black, design: .rounded))
+                            .tracking(0.35)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
                     }
-                } footer: {
-                    Text("Enter the password once to unlock this 3105 package on this device.")
+                    .foregroundStyle(selected == tab ? AppTheme.accent : .white.opacity(0.42))
+                    .frame(maxWidth: .infinity, minHeight: 45)
+                    .background(selected == tab ? AppTheme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
-            }
-            .navigationTitle("Unlock package")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Unlock", action: unlock)
-                        .disabled(password.isEmpty || store.isBusy)
-                }
+                .buttonStyle(.plain)
             }
         }
     }
-
-    private func unlock() {
-        guard !password.isEmpty else { return }
-        store.unlock(password: password)
-    }
 }
 
-struct AnimatedHyperBackdrop: View {
+private struct VesperBackground: View {
     @State private var animate = false
+
     var body: some View {
         GeometryReader { proxy in
             ZStack {
-                AppTheme.pageBackground
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.20, green: 0.025, blue: 0.34),
+                        Color(red: 0.075, green: 0.008, blue: 0.13),
+                        Color.black
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
                 Circle()
-                    .fill(AppTheme.accent.opacity(0.12))
-                    .frame(width: 280, height: 280)
+                    .fill(AppTheme.accent.opacity(0.18))
+                    .frame(width: 290, height: 290)
                     .blur(radius: 70)
-                    .offset(x: animate ? 120 : -120, y: -proxy.size.height * 0.23)
+                    .offset(x: animate ? 110 : -100, y: -proxy.size.height * 0.36)
                 Circle()
-                    .fill(AppTheme.secondaryAccent.opacity(0.08))
+                    .fill(Color.purple.opacity(0.15))
                     .frame(width: 260, height: 260)
                     .blur(radius: 80)
-                    .offset(x: animate ? -100 : 100, y: proxy.size.height * 0.22)
-                GridOverlay()
+                    .offset(x: animate ? -90 : 90, y: proxy.size.height * 0.28)
+                VesperGrid()
             }
             .onAppear {
-                withAnimation(.easeInOut(duration: 7).repeatForever(autoreverses: true)) { animate = true }
+                withAnimation(.easeInOut(duration: 7).repeatForever(autoreverses: true)) {
+                    animate = true
+                }
             }
         }
     }
 }
 
-private struct GridOverlay: View {
+private struct VesperGrid: View {
     var body: some View {
         Canvas { context, size in
             var path = Path()
-            let spacing: CGFloat = 44
-            stride(from: CGFloat(0), through: size.width, by: spacing).forEach { x in
-                path.move(to: CGPoint(x: x, y: 0)); path.addLine(to: CGPoint(x: x, y: size.height))
+            stride(from: 0, through: size.width, by: 34).forEach { x in
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x, y: size.height))
             }
-            stride(from: CGFloat(0), through: size.height, by: spacing).forEach { y in
-                path.move(to: CGPoint(x: 0, y: y)); path.addLine(to: CGPoint(x: size.width, y: y))
+            stride(from: 0, through: size.height, by: 34).forEach { y in
+                path.move(to: CGPoint(x: 0, y: y))
+                path.addLine(to: CGPoint(x: size.width, y: y))
             }
-            context.stroke(path, with: .color(AppTheme.accent.opacity(0.055)), lineWidth: 1)
+            context.stroke(path, with: .color(AppTheme.accent.opacity(0.035)), lineWidth: 0.7)
         }
+        .allowsHitTesting(false)
     }
 }
