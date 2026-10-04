@@ -19,8 +19,8 @@ struct LicenseActivationView: View {
                         VStack(spacing: 0) {
                             Spacer(minLength: 42)
 
-                            Text("xTop1 External")
-                                .font(.system(size: 30, weight: .black, design: .rounded))
+                            Text("VESPER EXTERNAL")
+                                .font(.system(size: 34, weight: .black, design: .rounded))
                                 .tracking(1.4)
                                 .foregroundStyle(.white)
 
@@ -29,7 +29,7 @@ struct LicenseActivationView: View {
                                 .foregroundStyle(.white.opacity(0.55))
                                 .padding(.top, 5)
 
-                            Text("Package: xTop1 External")
+                            Text("Package: Vesper External")
                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                                 .foregroundStyle(AppTheme.secondaryAccent.opacity(0.9))
                                 .padding(.top, 8)
@@ -45,7 +45,7 @@ struct LicenseActivationView: View {
                                     Spacer()
                                 }
 
-                                Text("Enter your xTop1 license key to continue")
+                                Text("Enter your Vesper license key to continue")
                                     .font(.system(size: 13, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.68))
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -110,7 +110,7 @@ struct LicenseActivationView: View {
                             .background(.ultraThinMaterial.opacity(0.72), in: RoundedRectangle(cornerRadius: 25, style: .continuous))
                             .background(Color.gray.opacity(0.18), in: RoundedRectangle(cornerRadius: 25, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 25, style: .continuous).stroke(Color.white.opacity(0.16), lineWidth: 1))
-                            .padding(.horizontal, 22)
+                            .padding(.horizontal, 16)
                             .padding(.top, 26)
                             .id("activation-card")
 

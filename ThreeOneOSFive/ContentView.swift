@@ -99,7 +99,7 @@ struct ContentView: View {
     private var mainView: some View {
         VStack(spacing: 0) {
             VesperTopBar(title: selectedTab.title)
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 12)
                 .padding(.top, 12)
 
             ScrollView(showsIndicators: false) {
@@ -108,13 +108,14 @@ struct ContentView: View {
                     injectStatusCard
                     selectedContent
                 }
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 12)
                 .padding(.top, 12)
                 .padding(.bottom, 14)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             VesperTabBar(selected: $selectedTab)
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 8)
                 .padding(.top, 8)
                 .padding(.bottom, 8)
                 .background(.ultraThinMaterial.opacity(0.92))
@@ -132,7 +133,7 @@ struct ContentView: View {
             .frame(width: 48, height: 48)
             VStack(alignment: .leading, spacing: 4) {
                 Text("VESPER EXTERNAL")
-                    .font(.system(size: 18, weight: .black, design: .rounded))
+                    .font(.system(size: 20, weight: .black, design: .rounded))
                     .tracking(1.7)
                     .foregroundStyle(.white)
                 Text("PATCH CONTROL CENTER")
@@ -145,7 +146,7 @@ struct ContentView: View {
                 .font(.system(size: 25, weight: .bold))
                 .foregroundStyle(AppTheme.accent)
         }
-        .padding(14)
+        .padding(16)
         .background(AppTheme.referenceCard, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(AppTheme.accent.opacity(0.42), lineWidth: 1))
         .shadow(color: AppTheme.accent.opacity(0.18), radius: 16)
@@ -341,8 +342,8 @@ struct ContentView: View {
                     .tint(AppTheme.accent)
                     .allowsHitTesting(false)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -393,12 +394,18 @@ private struct VesperTopBar: View {
 
     var body: some View {
         HStack {
-            Image(systemName: "chevron.left")
-                .font(.system(size: 17, weight: .bold))
-                .foregroundStyle(.white.opacity(0.75))
+            VStack(alignment: .leading, spacing: 2) {
+                Text("VESPER EXTERNAL")
+                    .font(.system(size: 8, weight: .black, design: .rounded))
+                    .tracking(1.0)
+                    .foregroundStyle(AppTheme.accent)
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(.white.opacity(0.78))
+            }
             Spacer()
             Text(title)
-                .font(.system(size: 16, weight: .black, design: .rounded))
+                .font(.system(size: 18, weight: .black, design: .rounded))
                 .tracking(1.4)
                 .foregroundStyle(.white)
             Spacer()
