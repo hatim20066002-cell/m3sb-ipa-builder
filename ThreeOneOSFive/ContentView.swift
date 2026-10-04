@@ -344,6 +344,7 @@ struct ContentView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -399,9 +400,6 @@ private struct VesperTopBar: View {
                     .font(.system(size: 8, weight: .black, design: .rounded))
                     .tracking(1.0)
                     .foregroundStyle(AppTheme.accent)
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.78))
             }
             Spacer()
             Text(title)
@@ -409,9 +407,6 @@ private struct VesperTopBar: View {
                 .tracking(1.4)
                 .foregroundStyle(.white)
             Spacer()
-            Image(systemName: "ellipsis")
-                .font(.system(size: 19, weight: .bold))
-                .foregroundStyle(AppTheme.accent)
         }
         .frame(height: 42)
     }
@@ -524,7 +519,6 @@ private struct VesperBackground: View {
                     .frame(width: 260, height: 260)
                     .blur(radius: 80)
                     .offset(x: animate ? -90 : 90, y: proxy.size.height * 0.28)
-                VesperGrid()
             }
             .onAppear {
                 withAnimation(.easeInOut(duration: 7).repeatForever(autoreverses: true)) {
