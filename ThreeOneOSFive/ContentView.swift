@@ -528,6 +528,13 @@ private struct VesperBackground: View {
     }
 }
 
+// Compatibility wrapper for existing onboarding/license screens in the project.
+struct AnimatedHyperBackdrop: View {
+    var body: some View {
+        VesperBackground()
+    }
+}
+
 private struct VesperGrid: View {
     var body: some View {
         Canvas { context, size in
