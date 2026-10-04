@@ -1,12 +1,12 @@
 import SwiftUI
 
 enum AppTheme {
-    // Calm indigo palette shared by every screen and status state.
-    static let accent = Color(red: 0.49, green: 0.42, blue: 1.00)
-    static let secondaryAccent = Color(red: 0.67, green: 0.55, blue: 0.98)
-    static let pageBackground = Color(red: 0.016, green: 0.012, blue: 0.040)
-    static let consoleBackground = Color(red: 0.025, green: 0.020, blue: 0.070)
-    static let referenceCard = Color(red: 0.08, green: 0.06, blue: 0.18).opacity(0.72)
+    // Vesper-inspired ultraviolet, white and near-black palette.
+    static let accent = Color(red: 0.58, green: 0.16, blue: 0.96)
+    static let secondaryAccent = Color(red: 0.88, green: 0.82, blue: 1.0)
+    static let pageBackground = Color.black
+    static let consoleBackground = Color(red: 0.035, green: 0.012, blue: 0.075)
+    static let referenceCard = Color(red: 0.12, green: 0.025, blue: 0.20).opacity(0.78)
     static let pageInset: CGFloat = 16
     static let rowIconSize: CGFloat = 17
     static let rowIconFrame: CGFloat = 28

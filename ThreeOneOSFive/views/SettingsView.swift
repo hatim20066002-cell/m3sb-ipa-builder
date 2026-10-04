@@ -11,8 +11,6 @@ struct SettingsView: View {
             Form {
                 Section {
                     HStack(spacing: 14) {
-                        AppLogo()
-
                         VStack(alignment: .leading, spacing: 3) {
                             Text("xTop1").font(.headline)
                             Text(language.text("common.version", appVersion))
@@ -66,6 +64,8 @@ struct SettingsView: View {
 
             }
             .tint(AppTheme.accent)
+            .scrollContentBackground(.hidden)
+            .background(AppTheme.pageBackground)
             .navigationTitle(language.text("settings.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

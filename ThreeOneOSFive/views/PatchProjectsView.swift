@@ -24,7 +24,7 @@ struct PatchProjectsView: View {
                 return true
             }
             guard let project = item.project else { return false }
-            return project.name.localizedCaseInsensitiveContains(query)
+            return item.displayName.localizedCaseInsensitiveContains(query)
                 || project.allBundleIdentifiers.contains {
                     $0.localizedCaseInsensitiveContains(query)
                 }
@@ -223,7 +223,7 @@ private struct PatchProjectRow: View {
         HStack(spacing: 12) {
                 Image(systemName: item.isLocked ? "lock.doc.fill" : "puzzlepiece.fill")
             VStack(alignment: .leading, spacing: 3) {
-                Text(item.project?.name ?? language.text("patch.locked_project"))
+                Text(item.displayName)
                     .font(.body.weight(.semibold))
                     .foregroundStyle(.primary)
                 Text(item.isLocked
@@ -341,7 +341,7 @@ private struct PatchProjectDetailView: View {
                             NavigationLink {
                                 FileBrowserView(
                                     containerPath: workspaceURL.path,
-                                    title: project.name,
+                                    title: item.displayName,
                                     bundleID: nil
                                 )
                             } label: {
@@ -420,7 +420,7 @@ private struct PatchProjectDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(item?.project?.name ?? language.text("patch.title"))
+        .navigationTitle(item?.displayName ?? language.text("patch.title"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {

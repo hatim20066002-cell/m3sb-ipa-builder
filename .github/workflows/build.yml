@@ -1,18 +1,60 @@
-name: Build HYper key-enabled IPA
+name: Build Vesper IPA
+
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, master]
+
+permissions:
+  contents: read
+
 jobs:
   build:
-    runs-on: macos-latest
+    name: Build unsigned iOS IPA
+    runs-on: macos-15
+    timeout-minutes: 30
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: maxim-lobanov/setup-xcode@v1
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with: { xcode-version: latest-stable }
-      - run: ./build_unsigned.sh
-      - run: ./build_esign_ready_ipa.sh build/HYper-Regedit-Key-Enabled-unsigned.ipa
-      - uses: actions/upload-artifact@v4
+
+      - name: Make build scripts executable
+        run: chmod +x build_unsigned.sh build_esign_ready_ipa.sh
+
+      - name: Build unsigned IPA
+        run: ./build_unsigned.sh
+
+      - name: Verify eSign-ready package
+        run: ./build_esign_ready_ipa.sh build/HYper-Regedit-Key-Enabled-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: HYper-Regedit-Key-Enabled-unsigned-ipa
+          name: vesper-external-unsigned-ipa-${{ github.run_number }}
           path: build/HYper-Regedit-Key-Enabled-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vesper-external-build-logs-${{ github.run_number }}
+          path: build/**/*.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Build summary
+        if: always()
+        run: |
+          {
+            echo '### Vesper IPA build'
+            echo ''
+            echo '- Signing: disabled (eSign-ready IPA)'
+            echo '- Scheme: JVZTXNX'
+            echo '- Artifact: vesper-external-unsigned-ipa'
+          } >> "$GITHUB_STEP_SUMMARY"

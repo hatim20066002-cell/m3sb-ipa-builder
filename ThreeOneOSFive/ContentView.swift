@@ -9,13 +9,14 @@ struct ContentView: View {
     @State private var showCleaner = false
     @StateObject private var patchStore = PatchProjectStore()
     @State private var patchOperationBusy = false
-    @State private var patchMessage = "READY — SELECT A PATCH"
+    @State private var patchMessage = "READY — SELECT A MODULE"
     @State private var aimDragEnabled = false
     @State private var aimNeckEnabled = false
     @State private var hspeitoffEnabled = false
     @State private var hyperBalamagicaEnabled = false
     @State private var aimBodyPackageEnabled = false
     @State private var aimChestPackageEnabled = false
+    @State private var magicEnabled = false
 
     var body: some View {
         ZStack {
@@ -50,18 +51,18 @@ struct ContentView: View {
         .onChange(of: scenePhase) { phase in
             guard phase == .active, !patchOperationBusy else { return }
             syncPatchStates()
-            patchMessage = "READY — SELECT A PATCH"
+            patchMessage = "READY — SELECT A MODULE"
         }
     }
 
     private var brandHeader: some View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("xTop1 External")
+                Text("VESPER EXTERNAL")
                     .font(.system(size: 25, weight: .black, design: .rounded))
                     .tracking(3)
                     .foregroundStyle(.white)
-                Text("CONTROLE ELÉTRICO DE PATCHES")
+                Text("DEVELOPER CONTROL CENTER")
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .tracking(1.7)
                     .foregroundStyle(AppTheme.accent)
@@ -86,10 +87,10 @@ struct ContentView: View {
 
     private var devicePanel: some View {
         VStack(spacing: 0) {
-            panelTitle("STATUS DO DISPOSITIVO", icon: "shield.lefthalf.filled")
+            panelTitle("DEVICE STATUS", icon: "shield.lefthalf.filled")
             statusRow(icon: "apple.logo", title: "iOS", value: AppInfo.osVersion, color: AppTheme.secondaryAccent)
-            statusRow(icon: "iphone", title: "Dispositivo", value: AppInfo.displayMachineName, color: AppTheme.secondaryAccent)
-            statusRow(icon: "checkmark.seal.fill", title: "Suporte", value: appState.isSupported ? "COMPATÍVEL" : "INCOMPATÍVEL", color: appState.isSupported ? .green : .red)
+            statusRow(icon: "iphone", title: "Device", value: AppInfo.displayMachineName, color: AppTheme.secondaryAccent)
+            statusRow(icon: "checkmark.seal.fill", title: "Support", value: appState.isSupported ? "SUPPORTED" : "UNSUPPORTED", color: appState.isSupported ? .green : .red)
         }
         .padding(16)
         .background(Color.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -99,20 +100,21 @@ struct ContentView: View {
     private var patchOptions: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                panelTitle("OPÇÕES DE PATCH", icon: "bolt.fill")
+                panelTitle("PATCH OPTIONS", icon: "bolt.fill")
                 Spacer()
-                Text("SELECIONE PARA ATIVAR")
+                    Text("SELECT MODULE")
                     .font(.system(size: 9, weight: .bold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.45))
             }
 
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                patchCard(name: "Aim Drag", target: "FREE FIRE • NORMAL", package: "AimDragFreeFire.3105", color: AppTheme.accent, state: $aimDragEnabled)
-                patchCard(name: "Aim Neck", target: "FREE FIRE • NORMAL", package: "AimNeckFreeFire.3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
-                patchCard(name: "Antenna", target: "FREE FIRE • NORMAL", package: "HSPEITOFFNORMALHYPER.3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
-                patchCard(name: "144 FPS", target: "FREE FIRE • NORMAL", package: "HYPERBALAMAGICA.3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
-                patchCard(name: "Aim Body", target: "FREE FIRE • NORMAL", package: "AIM BODY.3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
-                patchCard(name: "Aim Chest", target: "FREE FIRE • NORMAL", package: "AIM CHEST.3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
+                patchCard(name: "Aim Drag", target: "MODULE • NORMAL", package: "xTop1 External File (6).3105", color: AppTheme.accent, state: $aimDragEnabled)
+                patchCard(name: "Aim Neck", target: "MODULE • NORMAL", package: "xTop1 External File (7).3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
+                patchCard(name: "Antenna", target: "MODULE • NORMAL", package: "xTop1 External File (8).3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
+                patchCard(name: "144 FPS", target: "MODULE • NORMAL", package: "xTop1 External File (10).3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
+                patchCard(name: "Aim Body", target: "MODULE • NORMAL", package: "xTop1 External File (12).3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
+                patchCard(name: "Aim Chest", target: "MODULE • NORMAL", package: "xTop1 External File (2).3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
+                patchCard(name: "Magic", target: "MODULE • NORMAL", package: "xTop1 External File (14).3105", color: AppTheme.accent, state: $magicEnabled)
             }
 
             HStack(spacing: 8) {
@@ -137,10 +139,10 @@ struct ContentView: View {
 
     private var gameLaunchPanel: some View {
         VStack(alignment: .leading, spacing: 12) {
-            panelTitle("ENTRAR NO JOGO", icon: "arrow.up.forward.app.fill")
+            panelTitle("LIVE PREVIEW", icon: "play.rectangle.fill")
             HStack(spacing: 12) {
-                launchButton(title: "FF NORMAL", subtitle: "Free Fire Normal", color: AppTheme.accent, scheme: "freefireth")
-                lockedLaunchButton(title: "FF MAX", subtitle: "Locked • Coming Soon", color: AppTheme.secondaryAccent)
+                launchButton(title: "LIVE PREVIEW", subtitle: "Local dashboard", color: AppTheme.accent, scheme: "vesper")
+                lockedLaunchButton(title: "BUILD 1.4.0", subtitle: "Locked • Coming Soon", color: AppTheme.secondaryAccent)
             }
             Button {
                 showCleaner = true
@@ -201,12 +203,12 @@ struct ContentView: View {
     private var footerStatus: some View {
         HStack(spacing: 10) {
             Circle().fill(.green).frame(width: 9, height: 9).shadow(color: .green, radius: 6)
-            Text("SISTEMA PRONTO")
+            Text("SYSTEM READY")
                 .font(.system(size: 10, weight: .black, design: .rounded))
                 .tracking(1.2)
                 .foregroundStyle(.white.opacity(0.72))
             Spacer()
-            Text("xTop1 • PRONTO")
+            Text("VESPER • ONLINE")
                 .font(.system(size: 9, weight: .bold, design: .rounded))
                 .foregroundStyle(AppTheme.accent.opacity(0.8))
         }
@@ -218,7 +220,7 @@ struct ContentView: View {
 
     private var developerCredits: some View {
         VStack(spacing: 10) {
-            Text("Developed by M3SB iOS & YAGAMI iOS")
+            Text("VESPER UI LAB • DEVELOPER BUILD")
                 .font(.system(size: 11, weight: .bold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.72))
                 .multilineTextAlignment(.center)
@@ -271,12 +273,13 @@ struct ContentView: View {
     }
 
     private func syncPatchStates() {
-        aimDragEnabled = isPatchActive("AimDragFreeFire.3105")
-        aimNeckEnabled = isPatchActive("AimNeckFreeFire.3105")
-        hspeitoffEnabled = isPatchActive("HSPEITOFFNORMALHYPER.3105")
-        hyperBalamagicaEnabled = isPatchActive("HYPERBALAMAGICA.3105")
-        aimBodyPackageEnabled = isPatchActive("AIM BODY.3105")
-        aimChestPackageEnabled = isPatchActive("AIM CHEST.3105")
+        aimDragEnabled = isPatchActive("xTop1 External File (6).3105")
+        aimNeckEnabled = isPatchActive("xTop1 External File (7).3105")
+        hspeitoffEnabled = isPatchActive("xTop1 External File (8).3105")
+        hyperBalamagicaEnabled = isPatchActive("xTop1 External File (10).3105")
+        aimBodyPackageEnabled = isPatchActive("xTop1 External File (12).3105")
+        aimChestPackageEnabled = isPatchActive("xTop1 External File (2).3105")
+        magicEnabled = isPatchActive("xTop1 External File (14).3105")
     }
 
     private func isPatchActive(_ packageFilename: String) -> Bool {
@@ -292,12 +295,13 @@ struct ContentView: View {
 
     private func setPatchState(for packageFilename: String, enabled: Bool) {
         switch packageFilename {
-        case "AimDragFreeFire.3105": aimDragEnabled = enabled
-        case "AimNeckFreeFire.3105": aimNeckEnabled = enabled
-        case "HSPEITOFFNORMALHYPER.3105": hspeitoffEnabled = enabled
-        case "HYPERBALAMAGICA.3105": hyperBalamagicaEnabled = enabled
-        case "AIM BODY.3105": aimBodyPackageEnabled = enabled
-        case "AIM CHEST.3105": aimChestPackageEnabled = enabled
+        case "xTop1 External File (6).3105": aimDragEnabled = enabled
+        case "xTop1 External File (7).3105": aimNeckEnabled = enabled
+        case "xTop1 External File (8).3105": hspeitoffEnabled = enabled
+        case "xTop1 External File (10).3105": hyperBalamagicaEnabled = enabled
+        case "xTop1 External File (12).3105": aimBodyPackageEnabled = enabled
+        case "xTop1 External File (2).3105": aimChestPackageEnabled = enabled
+        case "xTop1 External File (14).3105": magicEnabled = enabled
         default: break
         }
     }

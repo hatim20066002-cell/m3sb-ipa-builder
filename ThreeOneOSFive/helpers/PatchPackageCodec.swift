@@ -8,6 +8,11 @@ enum PatchPackageCodec {
     static let latestSchemaVersion = 2
     private static let minimumSchemaVersion = 1
 
+    // Built-in resources are encrypted at rest. This value is only used by the
+    // application to unlock its bundled resources; imported packages still
+    // require the user-supplied password.
+    static let bundledResourcePassword = "xTop1-External-Internal-Patch-Key-2026"
+
     private struct Envelope: Codable {
         let schemaVersion: Int
         let keyAADVersion: Int?

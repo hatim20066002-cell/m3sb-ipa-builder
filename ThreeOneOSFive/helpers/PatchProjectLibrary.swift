@@ -8,6 +8,13 @@ struct PatchLibraryItem: Identifiable {
 
     var id: UUID { summary.packageID }
     var isLocked: Bool { project == nil }
+    var displayName: String {
+        let filename = packageURL.deletingPathExtension().lastPathComponent
+        if filename.hasPrefix("xTop1 External File (") {
+            return filename
+        }
+        return project?.name ?? filename
+    }
     var workspaceURL: URL? {
         PatchWorkspaceService.workspaceURL(projectID: id)
     }
@@ -84,7 +91,22 @@ enum PatchProjectLibrary {
                 if let contentKey = try PatchKeyStore.load(for: summary) {
                     decoded = try PatchPackageCodec.decode(data, contentKey: contentKey)
                 } else if summary.isPasswordProtected {
-                    decoded = nil
+                    // Only the app's renamed bundled resources use the internal
+                    // key; imported packages remain locked for the user.
+                    guard url.deletingPathExtension().lastPathComponent.hasPrefix("xTop1 External File (") else {
+                        decoded = nil
+                        continue
+                    }
+                    do {
+                        let bundled = try PatchPackageCodec.decode(
+                            data,
+                            password: PatchPackageCodec.bundledResourcePassword
+                        )
+                        try PatchKeyStore.store(bundled.contentKey, for: summary)
+                        decoded = bundled
+                    } catch {
+                        decoded = nil
+                    }
                 } else {
                     decoded = try PatchPackageCodec.decode(data, password: nil)
                 }
