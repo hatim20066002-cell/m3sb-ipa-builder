@@ -31,6 +31,8 @@ for package in "$APP"/*.3105; do
 done
 
 /usr/libexec/PlistBuddy -c "Set :CFBundleExecutable 3105" "$APP/Info.plist" || true
+/usr/libexec/PlistBuddy -c "Set :CFBundleName 'CAOS X'" "$APP/Info.plist" || true
+/usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'CAOS X'" "$APP/Info.plist" || true
 /usr/libexec/PlistBuddy -c "Set :CFBundlePackageType APPL" "$APP/Info.plist" || true
 mkdir -p "$BUILD_DIR/Payload"
 cp -R "$APP" "$BUILD_DIR/Payload/"
