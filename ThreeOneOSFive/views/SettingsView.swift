@@ -12,7 +12,7 @@ struct SettingsView: View {
                 Section {
                     HStack(spacing: 14) {
                         VStack(alignment: .leading, spacing: 3) {
-                            Text("xTop1").font(.headline)
+                            Text("CAOS X").font(.headline)
                             Text(language.text("common.version", appVersion))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)

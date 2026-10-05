@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selectedTab: VesperTab = .aim
+    @State private var selectedTab: CaosTab = .aim
     @State private var isLoading = true
     @State private var completedResources = 0
     @State private var patchMessage = "READY — SELECT A PATCH"
@@ -23,7 +23,7 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            VesperBackground()
+            CaosBackground()
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -42,7 +42,7 @@ struct ContentView: View {
 
     private var loadingView: some View {
         VStack(spacing: 0) {
-            VesperTopBar(title: "VESPER EXTERNAL")
+            CaosTopBar(title: "CAOS X")
                 .padding(.horizontal, 18)
                 .padding(.top, 12)
 
@@ -55,7 +55,7 @@ struct ContentView: View {
                             .font(.system(size: 13, weight: .black, design: .rounded))
                             .tracking(1.1)
                             .foregroundStyle(.white)
-                        Text("SYNCING VESPERDASH MODULES")
+                        Text("SYNCING CAOS X MODULES")
                             .font(.system(size: 9, weight: .bold, design: .rounded))
                             .tracking(1.2)
                             .foregroundStyle(.white.opacity(0.42))
@@ -88,7 +88,7 @@ struct ContentView: View {
             .padding(.horizontal, 18)
 
             Spacer()
-            Text("SECURE RESOURCE CHANNEL • VESPERDASH")
+            Text("SECURE RESOURCE CHANNEL • CAOS X")
                 .font(.system(size: 9, weight: .bold, design: .rounded))
                 .tracking(1.2)
                 .foregroundStyle(.white.opacity(0.35))
@@ -98,7 +98,7 @@ struct ContentView: View {
 
     private var mainView: some View {
         VStack(spacing: 0) {
-            VesperTopBar(title: selectedTab.title)
+            CaosTopBar(title: selectedTab.title)
                 .padding(.horizontal, 12)
                 .padding(.top, 12)
 
@@ -114,7 +114,7 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            VesperTabBar(selected: $selectedTab)
+            CaosTabBar(selected: $selectedTab)
                 .padding(.horizontal, 8)
                 .padding(.top, 8)
                 .padding(.bottom, 8)
@@ -124,15 +124,9 @@ struct ContentView: View {
 
     private var identityCard: some View {
         HStack(spacing: 12) {
-            ZStack {
-                Circle().fill(AppTheme.accent.opacity(0.20))
-                Image(systemName: "bolt.horizontal.circle.fill")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundStyle(AppTheme.accent)
-            }
-            .frame(width: 48, height: 48)
+            AppLogo(size: 56)
             VStack(alignment: .leading, spacing: 4) {
-                Text("VESPER EXTERNAL")
+                Text("CAOS X")
                     .font(.system(size: 20, weight: .black, design: .rounded))
                     .tracking(1.7)
                     .foregroundStyle(.white)
@@ -187,11 +181,11 @@ struct ContentView: View {
         case .aim:
             aimContent
         case .esp:
-            emptyContent(title: "ESP", subtitle: "REMOTE ESP PATCHES", message: "NO ESP PATCHES — ADD FILES FROM VESPERDASH")
+            emptyContent(title: "ESP", subtitle: "REMOTE ESP PATCHES", message: "NO ESP PATCHES — ADD FILES FROM CAOS X")
         case .hologram:
-            emptyContent(title: "HOLOGRAM", subtitle: "REMOTE HOLOGRAM PATCHES", message: "NO HOLOGRAM PATCHES — ADD FILES FROM VESPERDASH")
+            emptyContent(title: "HOLOGRAM", subtitle: "REMOTE HOLOGRAM PATCHES", message: "NO HOLOGRAM PATCHES — ADD FILES FROM CAOS X")
         case .skin:
-            emptyContent(title: "SKIN MOD", subtitle: "REMOTE SKIN PATCHES", message: "NO SKIN MOD PATCHES — ADD FILES FROM VESPERDASH")
+            emptyContent(title: "SKIN MOD", subtitle: "REMOTE SKIN PATCHES", message: "NO SKIN MOD PATCHES — ADD FILES FROM CAOS X")
         case .files:
             fileStatusContent
         }
@@ -213,14 +207,13 @@ struct ContentView: View {
             }
             .padding(.horizontal, 4)
             VStack(spacing: 0) {
-                patchRow("AIM HEAD", description: "FREE FIRE • NORMAL", icon: "scope", isOn: $aimHead)
-                patchRow("AIM DRAG", description: "FREE FIRE • NORMAL", icon: "arrow.up.right", isOn: $aimDrag)
-                patchRow("AIM BODY", description: "FREE FIRE • NORMAL", icon: "figure.stand", isOn: $aimBody)
-                patchRow("MAGIC BULET", description: "FREE FIRE • NORMAL", icon: "wand.and.stars", isOn: $magicBullet)
-                patchRow("AIM DRAG + ANTENA", description: "FREE FIRE • NORMAL", icon: "antenna.radiowaves.left.and.right", isOn: $aimDragAntenna)
-                patchRow("AIM HEAD + ANTENA", description: "FREE FIRE • NORMAL", icon: "dot.radiowaves.left.and.right", isOn: $aimHeadAntenna)
-                patchRow("MAGIC BULET + ANTENA", description: "FREE FIRE • NORMAL", icon: "sparkles", isOn: $magicAntenna)
-                patchRow("144 FPS", description: "FREE FIRE • NORMAL", icon: "speedometer", isOn: $fps144)
+                patchRow("AIM HEAD", description: "CAOS X • NORMAL", icon: "scope", isOn: $aimHead)
+                Text("ONE ACTIVE FEATURE AT A TIME")
+                    .font(.system(size: 10, weight: .black, design: .rounded))
+                    .tracking(0.9)
+                    .foregroundStyle(AppTheme.secondaryAccent.opacity(0.72))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
             }
             .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(AppTheme.accent.opacity(0.24), lineWidth: 1))
@@ -230,12 +223,35 @@ struct ContentView: View {
     private func emptyContent(title: String, subtitle: String, message: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             categoryCard(title: title, subtitle: subtitle, icon: title == "ESP" ? "eye" : "sparkles")
-            Text(message)
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-                .tracking(0.7)
-                .foregroundStyle(.white.opacity(0.42))
-                .padding(.horizontal, 6)
-            Spacer(minLength: 280)
+            VStack(spacing: 18) {
+                Image(systemName: "lock.open.fill")
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundStyle(AppTheme.accent)
+                Text(message)
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .tracking(0.7)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.white.opacity(0.56))
+                Button {
+                    activateSection(title)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "power")
+                        Text("ACTIVATE \(title)")
+                    }
+                    .font(.system(size: 15, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, minHeight: 58)
+                    .background(AppTheme.accent, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .shadow(color: AppTheme.accent.opacity(0.30), radius: 14, y: 7)
+                }
+                .buttonStyle(.plain)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(28)
+            .background(Color.black.opacity(0.34), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(AppTheme.accent.opacity(0.28), lineWidth: 1))
+            Spacer(minLength: 160)
         }
     }
 
@@ -250,7 +266,7 @@ struct ContentView: View {
                         .font(.system(size: 12, weight: .black, design: .rounded))
                         .tracking(1.0)
                         .foregroundStyle(.white)
-                    Text("VESPERDASH • LOCAL LIBRARY")
+                    Text("CAOS X • LOCAL LIBRARY")
                         .font(.system(size: 9, weight: .bold, design: .rounded))
                         .tracking(0.8)
                         .foregroundStyle(.white.opacity(0.42))
@@ -292,10 +308,10 @@ struct ContentView: View {
                     .font(.system(size: 18, weight: .bold))
                     .foregroundStyle(AppTheme.accent)
             }
-            .frame(width: 40, height: 40)
+            .frame(width: 52, height: 52)
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(size: 16, weight: .black, design: .rounded))
+                    .font(.system(size: 19, weight: .black, design: .rounded))
                     .tracking(1.3)
                     .foregroundStyle(.white)
                 Text(subtitle)
@@ -305,9 +321,14 @@ struct ContentView: View {
             }
             Spacer()
         }
-        .padding(13)
+        .padding(18)
         .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 17, style: .continuous).stroke(AppTheme.accent.opacity(0.25), lineWidth: 1))
+    }
+
+    private func activateSection(_ title: String) {
+        processingPatch = title
+        patchMessage = "PROCESSING — \(title)"
     }
 
     private func patchRow(_ name: String, description: String, icon: String, isOn: Binding<Bool>) -> some View {
@@ -320,7 +341,7 @@ struct ContentView: View {
         } label: {
             HStack(spacing: 11) {
                 Image(systemName: icon)
-                    .font(.system(size: 15, weight: .bold))
+                    .font(.system(size: 19, weight: .bold))
                     .foregroundStyle(isOn.wrappedValue ? AppTheme.accent : .white.opacity(0.42))
                     .frame(width: 25)
                 VStack(alignment: .leading, spacing: 3) {
@@ -370,7 +391,7 @@ struct ContentView: View {
     }
 }
 
-enum VesperTab: String, CaseIterable, Identifiable {
+enum CaosTab: String, CaseIterable, Identifiable {
     case aim = "AIM"
     case esp = "ESP"
     case hologram = "HOLOGRAM"
@@ -390,13 +411,13 @@ enum VesperTab: String, CaseIterable, Identifiable {
     }
 }
 
-private struct VesperTopBar: View {
+private struct CaosTopBar: View {
     let title: String
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("VESPER EXTERNAL")
+                Text("CAOS X")
                     .font(.system(size: 8, weight: .black, design: .rounded))
                     .tracking(1.0)
                     .foregroundStyle(AppTheme.accent)
@@ -466,12 +487,12 @@ private struct FileStatusRow: View {
     }
 }
 
-private struct VesperTabBar: View {
-    @Binding var selected: VesperTab
+private struct CaosTabBar: View {
+    @Binding var selected: CaosTab
 
     var body: some View {
         HStack(spacing: 2) {
-            ForEach(VesperTab.allCases) { tab in
+            ForEach(CaosTab.allCases) { tab in
                 Button {
                     withAnimation(.easeInOut(duration: 0.20)) { selected = tab }
                 } label: {
@@ -479,13 +500,13 @@ private struct VesperTabBar: View {
                         Image(systemName: tab.icon)
                             .font(.system(size: 15, weight: .bold))
                         Text(tab.rawValue)
-                            .font(.system(size: 7, weight: .black, design: .rounded))
+                            .font(.system(size: 9, weight: .black, design: .rounded))
                             .tracking(0.35)
                             .lineLimit(1)
                             .minimumScaleFactor(0.75)
                     }
                     .foregroundStyle(selected == tab ? AppTheme.accent : .white.opacity(0.42))
-                    .frame(maxWidth: .infinity, minHeight: 45)
+                    .frame(maxWidth: .infinity, minHeight: 62)
                     .background(selected == tab ? AppTheme.accent.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
                 .buttonStyle(.plain)
@@ -494,7 +515,7 @@ private struct VesperTabBar: View {
     }
 }
 
-private struct VesperBackground: View {
+private struct CaosBackground: View {
     @State private var animate = false
 
     var body: some View {
@@ -502,8 +523,8 @@ private struct VesperBackground: View {
             ZStack {
                 LinearGradient(
                     colors: [
-                        Color(red: 0.20, green: 0.025, blue: 0.34),
-                        Color(red: 0.075, green: 0.008, blue: 0.13),
+                        Color(red: 0.34, green: 0.008, blue: 0.008),
+                        Color(red: 0.12, green: 0.004, blue: 0.004),
                         Color.black
                     ],
                     startPoint: .top,
@@ -515,7 +536,7 @@ private struct VesperBackground: View {
                     .blur(radius: 70)
                     .offset(x: animate ? 110 : -100, y: -proxy.size.height * 0.36)
                 Circle()
-                    .fill(Color.purple.opacity(0.15))
+                    .fill(Color.red.opacity(0.15))
                     .frame(width: 260, height: 260)
                     .blur(radius: 80)
                     .offset(x: animate ? -90 : 90, y: proxy.size.height * 0.28)
@@ -532,11 +553,11 @@ private struct VesperBackground: View {
 // Compatibility wrapper for existing onboarding/license screens in the project.
 struct AnimatedHyperBackdrop: View {
     var body: some View {
-        VesperBackground()
+        CaosBackground()
     }
 }
 
-private struct VesperGrid: View {
+private struct CaosGrid: View {
     var body: some View {
         Canvas { context, size in
             var path = Path()

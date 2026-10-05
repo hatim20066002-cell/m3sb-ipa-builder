@@ -1,21 +1,21 @@
 import SwiftUI
 
 enum AppTheme {
-    // Vesper-inspired ultraviolet, white and near-black palette.
-    static let accent = Color(red: 0.58, green: 0.16, blue: 0.96)
-    static let secondaryAccent = Color(red: 0.88, green: 0.82, blue: 1.0)
+    // CAOS X red-and-black identity palette.
+    static let accent = Color(red: 0.96, green: 0.03, blue: 0.03)
+    static let secondaryAccent = Color(red: 1.0, green: 0.34, blue: 0.30)
     static let pageBackground = Color.black
-    static let consoleBackground = Color(red: 0.035, green: 0.012, blue: 0.075)
-    static let referenceCard = Color(red: 0.12, green: 0.025, blue: 0.20).opacity(0.78)
-    static let pageInset: CGFloat = 16
-    static let rowIconSize: CGFloat = 17
-    static let rowIconFrame: CGFloat = 28
-    static let fileRowIconSize: CGFloat = 17
-    static let fileRowIconFrame: CGFloat = 30
-    static let fileRowHeight: CGFloat = 60
-    static let appIconSize: CGFloat = 32
-    static let emptyIconSize: CGFloat = 30
-    static let selectionIconSize: CGFloat = 18
+    static let consoleBackground = Color(red: 0.07, green: 0.005, blue: 0.005)
+    static let referenceCard = Color(red: 0.20, green: 0.012, blue: 0.012).opacity(0.84)
+    static let pageInset: CGFloat = 18
+    static let rowIconSize: CGFloat = 19
+    static let rowIconFrame: CGFloat = 34
+    static let fileRowIconSize: CGFloat = 19
+    static let fileRowIconFrame: CGFloat = 36
+    static let fileRowHeight: CGFloat = 68
+    static let appIconSize: CGFloat = 38
+    static let emptyIconSize: CGFloat = 36
+    static let selectionIconSize: CGFloat = 20
 }
 
 struct AppRowIcon: View {

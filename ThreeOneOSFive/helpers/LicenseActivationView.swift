@@ -19,8 +19,10 @@ struct LicenseActivationView: View {
                         VStack(spacing: 0) {
                             Spacer(minLength: 42)
 
-                            Text("VESPER EXTERNAL")
-                                .font(.system(size: 34, weight: .black, design: .rounded))
+                            AppLogo(size: 88)
+
+                            Text("CAOS X")
+                                .font(.system(size: 36, weight: .black, design: .rounded))
                                 .tracking(1.4)
                                 .foregroundStyle(.white)
 
@@ -29,7 +31,7 @@ struct LicenseActivationView: View {
                                 .foregroundStyle(.white.opacity(0.55))
                                 .padding(.top, 5)
 
-                            Text("Package: Vesper External")
+                            Text("Package: CAOS X")
                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                                 .foregroundStyle(AppTheme.secondaryAccent.opacity(0.9))
                                 .padding(.top, 8)
@@ -45,7 +47,7 @@ struct LicenseActivationView: View {
                                     Spacer()
                                 }
 
-                                Text("Enter your Vesper license key to continue")
+                                Text("Enter your CAOS X license key to continue")
                                     .font(.system(size: 13, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.68))
                                     .frame(maxWidth: .infinity, alignment: .leading)
