@@ -1,4 +1,4 @@
-name: Build Vesper IPA
+name: Build CAOS X IPA
 
 on:
   workflow_dispatch:
@@ -34,7 +34,7 @@ jobs:
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vesper-external-unsigned-ipa-${{ github.run_number }}
+          name: caos-x-unsigned-ipa-${{ github.run_number }}
           path: build/HYper-Regedit-Key-Enabled-unsigned.ipa
           if-no-files-found: error
           retention-days: 14
@@ -43,7 +43,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: vesper-external-build-logs-${{ github.run_number }}
+          name: caos-x-build-logs-${{ github.run_number }}
           path: build/**/*.log
           if-no-files-found: ignore
           retention-days: 7
@@ -52,9 +52,9 @@ jobs:
         if: always()
         run: |
           {
-            echo '### Vesper IPA build'
+            echo '### CAOS X IPA build'
             echo ''
             echo '- Signing: disabled (eSign-ready IPA)'
             echo '- Scheme: JVZTXNX'
-            echo '- Artifact: vesper-external-unsigned-ipa'
+            echo '- Artifact: caos-x-unsigned-ipa'
           } >> "$GITHUB_STEP_SUMMARY"
