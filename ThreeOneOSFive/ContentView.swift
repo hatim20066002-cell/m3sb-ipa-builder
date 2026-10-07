@@ -15,11 +15,26 @@ struct ContentView: View {
     @State private var aimHeadAntenna = false
     @State private var magicAntenna = false
     @State private var fps144 = false
+    @State private var enabledPatchFiles: Set<String> = []
 
-    private let resources = [
-        "AIM HEAD", "AIM DRAG", "AIM BODY", "MAGIC BULET",
-        "AIM DRAG + ANTENA", "AIM HEAD + ANTENA", "MAGIC BULET + ANTENA", "144 FPS", "AIM BODY"
+    private let patches: [CaosPatch] = [
+        CaosPatch(fileName: "xTop1 External File (1).3105", name: "AIM HEAD", description: "CAOS X • AIM HEAD", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (2).3105", name: "AIM CHEST", description: "CAOS X • AIM CHEST", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (3).3105", name: "AIM DRAG + ANTENNA", description: "CAOS X • AIM DRAG COMBO", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (4).3105", name: "AIM HEAD + ANTENNA", description: "CAOS X • AIM HEAD COMBO", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (5).3105", name: "MAGIC BULLET + ANTENNA", description: "CAOS X • MAGIC COMBO", icon: "sparkles"),
+        CaosPatch(fileName: "xTop1 External File (6).3105", name: "AIM DRAG", description: "CAOS X • AIM DRAG", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (7).3105", name: "AIM NECK", description: "CAOS X • AIM NECK", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (8).3105", name: "ANTENNA", description: "CAOS X • ANTENNA", icon: "antenna.radiowaves.left.and.right"),
+        CaosPatch(fileName: "xTop1 External File (9).3105", name: "OBB", description: "CAOS X • OBB MODULE", icon: "cube"),
+        CaosPatch(fileName: "xTop1 External File (10).3105", name: "144 FPS", description: "CAOS X • PERFORMANCE", icon: "speedometer"),
+        CaosPatch(fileName: "xTop1 External File (11).3105", name: "AIM HEAD + BODY", description: "CAOS X • AIM COMBO", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (12).3105", name: "AIM BODY", description: "CAOS X • AIM BODY", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (13).3105", name: "AIM CHEST + BODY", description: "CAOS X • AIM COMBO", icon: "scope"),
+        CaosPatch(fileName: "xTop1 External File (14).3105", name: "MAGIC BULLET", description: "CAOS X • MAGIC BULLET", icon: "sparkles")
     ]
+
+    private var resources: [String] { patches.map(\.name) }
 
     var body: some View {
         ZStack {
@@ -207,7 +222,18 @@ struct ContentView: View {
             }
             .padding(.horizontal, 4)
             VStack(spacing: 0) {
-                patchRow("AIM HEAD", description: "CAOS X • NORMAL", icon: "scope", isOn: $aimHead)
+                ForEach(patches) { patch in
+                    patchRow(patch, isOn: Binding(
+                        get: { enabledPatchFiles.contains(patch.fileName) },
+                        set: { enabled in
+                            if enabled { enabledPatchFiles.insert(patch.fileName) }
+                            else { enabledPatchFiles.remove(patch.fileName) }
+                        }
+                    ))
+                    if patch.id != patches.last?.id {
+                        Divider().overlay(Color.white.opacity(0.06))
+                    }
+                }
                 Text("ONE ACTIVE FEATURE AT A TIME")
                     .font(.system(size: 10, weight: .black, design: .rounded))
                     .tracking(0.9)
@@ -331,25 +357,25 @@ struct ContentView: View {
         patchMessage = "PROCESSING — \(title)"
     }
 
-    private func patchRow(_ name: String, description: String, icon: String, isOn: Binding<Bool>) -> some View {
+    private func patchRow(_ patch: CaosPatch, isOn: Binding<Bool>) -> some View {
         Button {
             withAnimation(.easeInOut(duration: 0.22)) {
                 isOn.wrappedValue.toggle()
-                processingPatch = isOn.wrappedValue ? name : nil
-                patchMessage = isOn.wrappedValue ? "PROCESSING — \(name)" : "READY — SELECT A PATCH"
+                processingPatch = isOn.wrappedValue ? patch.name : nil
+                patchMessage = isOn.wrappedValue ? "PROCESSING — \(patch.name)" : "READY — SELECT A PATCH"
             }
         } label: {
             HStack(spacing: 11) {
-                Image(systemName: icon)
+                Image(systemName: patch.icon)
                     .font(.system(size: 19, weight: .bold))
                     .foregroundStyle(isOn.wrappedValue ? AppTheme.accent : .white.opacity(0.42))
                     .frame(width: 25)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(name)
+                    Text(patch.name)
                         .font(.system(size: 12, weight: .black, design: .rounded))
                         .tracking(0.5)
                         .foregroundStyle(.white)
-                    Text(description)
+                    Text(patch.description)
                         .font(.system(size: 8, weight: .bold, design: .rounded))
                         .tracking(0.5)
                         .foregroundStyle(.white.opacity(0.38))
@@ -389,6 +415,15 @@ struct ContentView: View {
             }
         }
     }
+}
+
+private struct CaosPatch: Identifiable, Hashable {
+    let fileName: String
+    let name: String
+    let description: String
+    let icon: String
+
+    var id: String { fileName }
 }
 
 enum CaosTab: String, CaseIterable, Identifiable {
