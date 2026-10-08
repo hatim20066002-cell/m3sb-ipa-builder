@@ -20,6 +20,14 @@
     <string>1.1.1</string>
     <key>CFBundleVersion</key>
     <string>7</string>
+    <key>APONServerURL</key>
+    <string>https://api.m3sbapi.shop</string>
+    <key>APONPackageName</key>
+    <string>Caos X - Pro</string>
+    <key>APONPackageToken</key>
+    <string>$(M3SB_API_TOKEN)</string>
+    <key>APONHMACSecret</key>
+    <string>$(M3SB_HMAC_SECRET)</string>
     <key>CFBundleDocumentTypes</key>
     <array>
         <dict>

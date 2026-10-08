@@ -69,6 +69,7 @@
 		3105A228 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3105A120; };
 		3105K200 /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3105K100; };
 		3105K201 /* LicenseActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3105K101; };
+		3105K202 /* APONLicenseSDK.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3105K102; };
 		3105A211 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3105A031; };
 		3105P201 /* xTop1 External File (6).3105 in Resources */ = {isa = PBXBuildFile; fileRef = 3105P101; };
 	3105P202 /* xTop1 External File (7).3105 in Resources */ = {isa = PBXBuildFile; fileRef = 3105P102; };
@@ -138,6 +139,7 @@
 		3105A113 /* SupportPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportPolicy.swift; sourceTree = "<group>"; };
 		3105K100 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
 		3105K101 /* LicenseActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseActivationView.swift; sourceTree = "<group>"; };
+		3105K102 /* APONLicenseSDK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APONLicenseSDK.swift; sourceTree = "<group>"; };
 		3105B114 /* PatchProjectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchProjectModels.swift; sourceTree = "<group>"; };
 		3105B115 /* PatchPackageCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchPackageCodec.swift; sourceTree = "<group>"; };
 		3105B116 /* PatchKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchKeyStore.swift; sourceTree = "<group>"; };
@@ -300,6 +302,7 @@
 					3105F105 /* WallpaperLabService.swift */,
 					3105K100 /* LicenseManager.swift */,
 					3105K101 /* LicenseActivationView.swift */,
+					3105K102 /* APONLicenseSDK.swift */,
 					3105A106 /* AppIconHelper.m */,
 				3105A107 /* AppIconHelper.h */,
 				3105A202 /* KernelExploit.swift */,
@@ -437,6 +440,7 @@
 					3105A241,
 					3105K200,
 					3105K201,
+					3105K202,
 					3105B214,
 				3105B215,
 				3105B216,

@@ -4,8 +4,6 @@ import Security
 
 @MainActor
 final class LicenseManager: ObservableObject {
-    static let accessKey = "M3SBxYAGAMI"
-
     @Published private(set) var expirationDate: Date?
     @Published private(set) var isActive = false
     @Published private(set) var isBusy = false
@@ -13,7 +11,7 @@ final class LicenseManager: ObservableObject {
     @Published private(set) var contactOwner: String?
     @Published var rememberKey = true
 
-    private let service = "com.m3sb.external-ios.activation"
+    private let service = "com.caosx.pro-license.activation"
     private let keyAccount = "license-key"
     private var lastAttemptAt: Date?
 
@@ -21,11 +19,17 @@ final class LicenseManager: ObservableObject {
         isActive = hasRememberedKey
     }
 
-    var hasRememberedKey: Bool { string(for: keyAccount) == Self.accessKey }
+    var hasRememberedKey: Bool {
+        !(string(for: keyAccount) ?? "").isEmpty
+    }
 
     func beginLaunchSession() {
-        isActive = hasRememberedKey
-        message = isActive ? "Ready to use" : "Key required — enter your access key"
+        guard let key = rememberedKey(), !key.isEmpty else {
+            isActive = false
+            message = "Key required — enter your Caos X - Pro access key"
+            return
+        }
+        verify(key: key, saveOnSuccess: false, showBusy: false)
     }
 
     func activate(key: String) {
@@ -36,34 +40,56 @@ final class LicenseManager: ObservableObject {
             return
         }
         lastAttemptAt = Date()
-        isBusy = true
-        message = "Checking access key…"
-
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.isBusy = false
-            guard trimmed == Self.accessKey else {
-                self.isActive = false
-                self.message = "Invalid access key"
-                return
-            }
-            if self.rememberKey { self.save(Self.accessKey, for: self.keyAccount) }
-            self.isActive = true
-            self.message = "Activated successfully"
-        }
+        verify(key: trimmed, saveOnSuccess: rememberKey, showBusy: true)
     }
 
     func rememberedKey() -> String? { string(for: keyAccount) }
 
     func refresh() {
-        isActive = hasRememberedKey
-        message = isActive ? "Ready to use" : "Key required — enter your access key"
+        guard let key = rememberedKey(), !key.isEmpty else {
+            isActive = false
+            message = "Key required — enter your Caos X - Pro access key"
+            return
+        }
+        verify(key: key, saveOnSuccess: false, showBusy: true)
     }
 
     func deactivate() {
         delete(keyAccount)
         isActive = false
+        expirationDate = nil
+        contactOwner = nil
         message = "Activation removed from this device"
+    }
+
+    private func verify(key: String, saveOnSuccess: Bool, showBusy: Bool) {
+        isBusy = showBusy
+        if showBusy { message = "Checking Caos X - Pro access key…" }
+
+        APONLicenseSDK.verify(licenseKey: key) { [weak self] result in
+            Task { @MainActor in
+                guard let self else { return }
+                self.isBusy = false
+                switch result {
+                case .success(let state) where state.isActive:
+                    if saveOnSuccess { self.save(key, for: self.keyAccount) }
+                    self.isActive = true
+                    self.expirationDate = state.expiresDate
+                    self.contactOwner = nil
+                    self.message = state.expiresAt.map { "Caos X - Pro activated • valid until \($0)" } ?? "Caos X - Pro activated successfully"
+                case .success(let state):
+                    self.isActive = false
+                    self.expirationDate = nil
+                    self.contactOwner = nil
+                    self.message = state.message ?? "This Caos X - Pro license is not active"
+                case .failure(let error):
+                    self.isActive = false
+                    self.expirationDate = nil
+                    self.contactOwner = nil
+                    self.message = error.localizedDescription
+                }
+            }
+        }
     }
 
     private func string(for account: String) -> String? {

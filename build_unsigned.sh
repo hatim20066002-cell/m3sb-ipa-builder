@@ -9,6 +9,8 @@ IPA="$BUILD_DIR/HYper-Regedit-Key-Enabled-unsigned.ipa"
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 command -v xcodebuild >/dev/null || { echo 'xcodebuild is required on macOS' >&2; exit 127; }
+: "${M3SB_API_TOKEN:?M3SB_API_TOKEN secret is required}"
+: "${M3SB_HMAC_SECRET:?M3SB_HMAC_SECRET secret is required}"
 
 xcodebuild \
   -project "$ROOT/ThreeOneOSFive.xcodeproj" \
@@ -16,6 +18,8 @@ xcodebuild \
   -configuration Release \
   -sdk iphoneos \
   -archivePath "$ARCHIVE" \
+  M3SB_API_TOKEN="$M3SB_API_TOKEN" \
+  M3SB_HMAC_SECRET="$M3SB_HMAC_SECRET" \
   CODE_SIGNING_ALLOWED=NO \
   CODE_SIGNING_REQUIRED=NO \
   CODE_SIGN_IDENTITY='' \

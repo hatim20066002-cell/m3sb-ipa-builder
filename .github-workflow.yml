@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    env:
+      M3SB_API_TOKEN: ${{ secrets.CAOS_X_PRO_TOKEN }}
+      M3SB_HMAC_SECRET: ${{ secrets.CAOS_X_PRO_HMAC_SECRET }}
     steps:
       - uses: actions/checkout@v4
       - uses: maxim-lobanov/setup-xcode@v1

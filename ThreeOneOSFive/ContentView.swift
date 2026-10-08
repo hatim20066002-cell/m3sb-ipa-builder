@@ -195,8 +195,8 @@ struct ContentView: View {
         switch selectedTab {
         case .aim:
             aimContent
-        case .esp:
-            emptyContent(title: "ESP", subtitle: "REMOTE ESP PATCHES", message: "NO ESP PATCHES — ADD FILES FROM CAOS X")
+        case .menu:
+            emptyContent(title: "MENU", subtitle: "CAOS X MENU MODULES", message: "NO MENU MODULES — ADD FILES FROM CAOS X")
         case .hologram:
             emptyContent(title: "HOLOGRAM", subtitle: "REMOTE HOLOGRAM PATCHES", message: "NO HOLOGRAM PATCHES — ADD FILES FROM CAOS X")
         case .skin:
@@ -248,7 +248,7 @@ struct ContentView: View {
 
     private func emptyContent(title: String, subtitle: String, message: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            categoryCard(title: title, subtitle: subtitle, icon: title == "ESP" ? "eye" : "sparkles")
+            categoryCard(title: title, subtitle: subtitle, icon: title == "MENU" ? "list.bullet.rectangle" : "sparkles")
             VStack(spacing: 18) {
                 Image(systemName: "lock.open.fill")
                     .font(.system(size: 34, weight: .bold))
@@ -428,7 +428,7 @@ private struct CaosPatch: Identifiable, Hashable {
 
 enum CaosTab: String, CaseIterable, Identifiable {
     case aim = "AIM"
-    case esp = "ESP"
+    case menu = "MENU"
     case hologram = "HOLOGRAM"
     case skin = "SKIN MOD"
     case files = "FILE STATUS"
@@ -438,7 +438,7 @@ enum CaosTab: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .aim: return "scope"
-        case .esp: return "eye"
+        case .menu: return "list.bullet.rectangle"
         case .hologram: return "sparkles"
         case .skin: return "tshirt.fill"
         case .files: return "folder.fill"
