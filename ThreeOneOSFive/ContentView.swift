@@ -4,6 +4,7 @@ struct ContentView: View {
     @State private var selectedTab: CaosTab = .aim
     @State private var isLoading = true
     @State private var completedResources = 0
+    @State private var showCleaner = false
     @State private var patchMessage = "READY — SELECT A PATCH"
     @State private var processingPatch: String?
     @State private var keepPatchActive = true
@@ -52,6 +53,9 @@ struct ContentView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showCleaner) {
+            CleanerView()
+        }
         .task { await runResourceLoading() }
     }
 
@@ -196,7 +200,7 @@ struct ContentView: View {
         case .aim:
             aimContent
         case .menu:
-            emptyContent(title: "MENU", subtitle: "CAOS X MENU MODULES", message: "NO MENU MODULES — ADD FILES FROM CAOS X")
+            menuContent
         case .hologram:
             emptyContent(title: "HOLOGRAM", subtitle: "REMOTE HOLOGRAM PATCHES", message: "NO HOLOGRAM PATCHES — ADD FILES FROM CAOS X")
         case .skin:
@@ -226,8 +230,15 @@ struct ContentView: View {
                     patchRow(patch, isOn: Binding(
                         get: { enabledPatchFiles.contains(patch.fileName) },
                         set: { enabled in
-                            if enabled { enabledPatchFiles.insert(patch.fileName) }
-                            else { enabledPatchFiles.remove(patch.fileName) }
+                            if enabled {
+                                enabledPatchFiles = [patch.fileName]
+                                processingPatch = patch.name
+                                patchMessage = "PROCESSING — \(patch.name)"
+                            } else {
+                                enabledPatchFiles.remove(patch.fileName)
+                                processingPatch = nil
+                                patchMessage = "READY — SELECT A PATCH"
+                            }
                         }
                     ))
                     if patch.id != patches.last?.id {
@@ -243,6 +254,47 @@ struct ContentView: View {
             }
             .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(AppTheme.accent.opacity(0.24), lineWidth: 1))
+        }
+    }
+
+    private var menuContent: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            categoryCard(title: "MENU", subtitle: "CAOS X UTILITIES", icon: "list.bullet.rectangle")
+
+            Button {
+                showCleaner = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "trash.slash.fill")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(AppTheme.accent)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("CLEANER")
+                            .font(.system(size: 14, weight: .black, design: .rounded))
+                            .tracking(0.8)
+                            .foregroundStyle(.white)
+                        Text("SCAN AND CLEAN AVAILABLE CACHE")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .tracking(0.5)
+                            .foregroundStyle(.white.opacity(0.48))
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(AppTheme.accent)
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.black.opacity(0.30), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(AppTheme.accent.opacity(0.30), lineWidth: 1))
+            }
+            .buttonStyle(.plain)
+
+            Text("The cleaner uses the limited, reversible cache-cleaning service included in this build.")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .foregroundStyle(.white.opacity(0.44))
+                .padding(.horizontal, 6)
+
+            Spacer(minLength: 160)
         }
     }
 
