@@ -1,5 +1,6 @@
 import UIKit
 import Darwin
+import MachO
 import CryptoKit
 import Security
 import CommonCrypto
